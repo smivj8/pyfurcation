@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
 """
 Created on Tue Feb 27 19:56:55 2024
 
 @author: SMIVJ8
-"""
 
-# -*- coding: utf-8 -*-
-"""
 Samuel Smith
 MATH6019 - Nonlinear Programming
 Date: Thu Feb  1 18:28:00 2024
