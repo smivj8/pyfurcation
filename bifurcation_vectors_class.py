@@ -3,7 +3,7 @@ import numpy as np
 import open3d as o3d
 
 
-class bifurcation_vector:
+class bifurcation_vectors:
 
     def __init__(self, parameters, is_normal_in):
         self.R_p = parameters[0]; self.L_p = parameters[1]; self.R_d = parameters[2]

@@ -1,6 +1,6 @@
 import numpy as np
 from stylianou_geometry_equations import *
-from bifurcation_vectors_class import bifurcation_vector
+from bifurcation_vectors_class import bifurcation_vectors
 
 
 def generate_pointclouds(parameters, n_circ = 100, n_streamline = 120, 
@@ -249,9 +249,9 @@ def crop_bifurcation_poisson_mesh(mesh, parameters):
         # z pos crop
         #find x_max
     
-    position_vec = bifurcation_vector(parameters, False)
+    position_vec = bifurcation_vectors(parameters, False)
     r_D_pos, _ = position_vec.calculate_outlet_positions()
-    normal_vec = bifurcation_vector(parameters, True)
+    normal_vec = bifurcation_vectors(parameters, True)
     n_D_pos, n_D_neg = normal_vec.calculate_outlet_normals()
     
     cos_theta = np.dot(n_D_pos, r_D_pos)/np.linalg.norm(r_D_pos)
