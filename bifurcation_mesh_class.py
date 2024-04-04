@@ -17,6 +17,7 @@ class bifurcation_mesh:
         self.generate_o3d_pointcloud()
         self.generate_o3d_mesh() 
         self.crop_bifurcation_mesh()
+        self.truncate_continuation_outlet()
 
 
     def generate_parametric_xyz(self, n_circ = 100, n_streamline = 120, 
@@ -108,14 +109,13 @@ class bifurcation_mesh:
         #Crop Daughter ends
             # z pos crop
             #find x_max
-        
         position_vec = bifurcation_vectors(self.parameters, False)
-        r_D_pos, _ = position_vec.calculate_outlet_positions()
+        r_pos, _ = position_vec.calculate_outlet_positions()
         normal_vec = bifurcation_vectors(self.parameters, True)
-        n_D_pos, _ = normal_vec.calculate_outlet_normals()
+        n_pos, _ = normal_vec.calculate_outlet_normals()
         
-        cos_theta = np.dot(n_D_pos, r_D_pos)/np.linalg.norm(r_D_pos)
-        hypot_max = np.linalg.norm(r_D_pos)*cos_theta
+        cos_theta = np.dot(n_pos, r_pos)/np.linalg.norm(r_pos)
+        hypot_max = np.linalg.norm(r_pos)*cos_theta
         #rotate poisson cloud and do the first daughter mesh crop
 
         cropped_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
@@ -131,9 +131,70 @@ class bifurcation_mesh:
 
         return
     
-
-    def modify_outlets(self):
-        #TODO this
+    def truncate_continuation_outlet(self):
+        position_vec = bifurcation_vectors(self.parameters, False)
+        r_pos, _ = position_vec.calculate_outlet_positions()
+        normal_vec = bifurcation_vectors(self.parameters, True)
+        n_pos, _ = normal_vec.calculate_outlet_normals()
+        cos_theta = np.dot(n_pos, r_pos)/np.linalg.norm(r_pos)
+        hypot_max = np.linalg.norm(r_pos)*cos_theta
+        truncation_distance = hypot_max*0.97
+        truncated_mesh = self.cropped_mesh
+        if self.n_cont_outlets == 1:
+            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+            truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+        elif self.n_cont_outlets == 2:
+            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+            truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+            truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
+            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+        else:
+            pass
+        self.truncated_mesh = truncated_mesh
         return
+
+    def get_free_edge_vertices(self, inlet_outlet_index):
+        #inlet_outlet_index: 0 = inlet, 1 = positive_outlet, 2 = negative_outlet
+        free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
+        numpy_free_edges = np.asarray(free_edges)
+        bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
+        bifurcation_free_vertices = np.asarray(self.truncated_mesh.vertices)[bifurcation_free_vertex_index]
+        free_vertices = []
+        free_vertex_index = []
+        if inlet_outlet_index == 0:
+            #Get Inlet free edge vertices
+            for ind, val in enumerate(bifurcation_free_vertices):
+                if val[0] < np.abs(self.L_d/10):
+                    free_vertices.append(val)
+                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
+                else:
+                    pass
+        elif inlet_outlet_index == 1:
+            #Get positive z outlet free edge vertices
+            for ind, val in enumerate(bifurcation_free_vertices):
+                if val[0] > np.abs(self.L_d/10) and val[2] > 0:
+                    free_vertices.append(val)
+                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
+                else:
+                    pass
+        elif inlet_outlet_index == 2:
+            #Get negative z outlet free edge vertices
+            for ind, val in enumerate(bifurcation_free_vertices):
+                if val[0] > np.abs(self.L_d/10) and val[2] < 0:
+                    free_vertices.append(val)
+                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
+                else:
+                    pass
+        free_vertices = np.array(free_vertices)
+        #free_vertex_index = np.array(free_vertex_index)
+        
+        return free_vertices
+        
+
+
+    
     
 
