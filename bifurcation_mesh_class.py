@@ -163,7 +163,7 @@ class bifurcation_mesh:
         bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
         bifurcation_free_vertices = np.asarray(self.truncated_mesh.vertices)[bifurcation_free_vertex_index]
         free_vertices = []
-        free_vertex_index = []
+        #free_vertex_index = []
         if inlet_outlet_index == 0:
             #Get Inlet free edge vertices
             for ind, val in enumerate(bifurcation_free_vertices):
@@ -190,10 +190,16 @@ class bifurcation_mesh:
                     pass
         free_vertices = np.array(free_vertices)
         #free_vertex_index = np.array(free_vertex_index)
-        
+        #self.free_vertices = free_vertices
         return free_vertices
+    
+    def organize_free_vertices(self):
         
-
+        return
+        
+    def cap_terminal_outlets(self):
+            
+        return
 
     
     

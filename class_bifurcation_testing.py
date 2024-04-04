@@ -19,7 +19,6 @@ bifurcation_mesh_1 = bifurcation_mesh(parameters_1)
 mesh_0 = bifurcation_mesh_0.cropped_mesh
 mesh_0 = bifurcation_mesh_1.cropped_mesh
 
-#mesh_0 = bifurcation_mesh_0.truncate_continuation_outlet()
 mesh_0 = bifurcation_mesh_0.truncated_mesh
 
 print("\n DONE GENERATING MESH\n")
@@ -29,6 +28,9 @@ pos_z_outlet_free_vertices = bifurcation_mesh_0.get_free_edge_vertices(1)
 neg_z_outlet_free_vertices = bifurcation_mesh_0.get_free_edge_vertices(2)
 
 
+
+
+#CONVERTING numpy xyz to open3d pointcloud
 inlet_pointcloud = o3d.geometry.PointCloud()
 inlet_pointcloud.points = o3d.utility.Vector3dVector(inlet_free_vertices)
 
