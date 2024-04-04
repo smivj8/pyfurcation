@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 Samuel Smith
 MATH6019 - Nonlinear Programming
@@ -829,7 +828,7 @@ def outlet_normals(parameters):
 
     """
     L_d = parameters[3]; R_o = parameters[4]; 
-    iota_b = parameters[6];
+    iota_b = parameters[6]
     iota_gamma = parameters[8]
     
     eta = np.tan(iota_gamma - iota_b)
@@ -1088,7 +1087,7 @@ R_o_0 = 5*R_1; iota_b_test = 35*np.pi/180; iota_gamma_test = 39.83 * np.pi/180
 delta_alpha_test = 3.6*np.pi/180
 
 D_1 = R_1*2; R_2 = D_1/2.48888; L_0 = 0; L_2 = 4.08888*R_2
-R_o_1 = 5*R_2;
+R_o_1 = 5*R_2
 
 # D_2 = R_2*2; R_3 = D_2/2.48888; L_0 = 0; L_3 = 4.08888*R_3
 # R_o_2 = 5*R_3;
