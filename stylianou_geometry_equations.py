@@ -11,11 +11,11 @@ Description:
 Author: smit3sl@mail.uc.edu
 """
 import numpy as np
-import matplotlib.pyplot as plt
-import scipy.spatial as spatial
+#import matplotlib.pyplot as plt
+#import scipy.spatial as spatial
 #from stl import mesh
-from matplotlib import cm
-from mpl_toolkits.mplot3d import Axes3D
+#from matplotlib import cm
+#from mpl_toolkits.mplot3d import Axes3D
 #import surf2stl
 import open3d as o3d
 
@@ -71,12 +71,6 @@ def bending_pipe_positive_z(phi_s, phi_c, L_p, R_o, R_i, R_p, R_d, iota_b, scala
 
     return xyz_m, normals_b * (1/np.linalg.norm(normals_b))
 
-# def bending_pipe_negative_z(phi_s, phi_c, L_p, R_o, R_i, R_p, R_d, iota_b):
-#     x_m_neg = L_p + R_o * np.sin(phi_s) + np.sin(phi_s) * R_i(phi_s, R_p, R_d, iota_b) * np.sin(phi_c)
-#     y_m_neg = R_i(phi_s, R_p, R_d, iota_b) * np.cos(phi_c)
-#     z_m_neg = -1 * R_o * (1-np.cos(phi_s)) + np.cos(phi_s)*R_i(phi_s, R_p, R_d, iota_b)*np.sin(phi_c)
-#     return np.array([x_m_neg, y_m_neg, z_m_neg])
-
 def daughter_positive_z(phi_s, phi_c, iota_b, L_p, R_i, R_o, R_p, R_d, scalar):
     xyz_m_pos, _ = bending_pipe_positive_z(iota_b, phi_c, L_p, R_o, R_i, R_p, R_d, iota_b, scalar)
     
@@ -96,18 +90,6 @@ def daughter_positive_z(phi_s, phi_c, iota_b, L_p, R_i, R_o, R_p, R_d, scalar):
     normals_d = daughter_dummy - xyz_d
    
     return xyz_d, normals_d*(1/np.linalg.norm(normals_d))
-
-# def daughter_negative_z(phi_s, phi_c, iota_b, L_p, R_i, R_o, R_p, R_d):
-#     xyz_m_neg = bending_pipe_negative_z(iota_b, phi_c, L_p, R_o, R_i, R_p, R_d, iota_b)
-    
-#     zeta = R_o * np.tan(phi_s - iota_b)
-#     x_d_neg = xyz_m_neg[0] + zeta*np.cos(iota_b)
-#     y_d_neg = xyz_m_neg[1]
-#     z_d_neg = xyz_m_neg[2] - zeta*np.sin(iota_b)
-    
-#     return np.array([x_d_neg, y_d_neg, z_d_neg])
-
-# Parameters = [R_p, L_p, R_d, L_d, R_o, R_i, iota_b, delta_alpha, iota_gamma]
 
 def r_positive(phi_s, phi_c, phi_c_pos_min, phi_c_pos_max, parameters, scalar):
     R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
@@ -130,28 +112,6 @@ def r_positive(phi_s, phi_c, phi_c_pos_min, phi_c_pos_max, parameters, scalar):
         return xyz, normals
     else:
         return None, None
-    
-# def r_negative(phi_s, phi_c, phi_c_neg_min, phi_c_neg_max, parameters):
-#     R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
-#     L_d = parameters[3]; R_o = parameters[4]; R_i = parameters[5]
-#     iota_b = parameters[6]; delta_alpha = parameters[7]
-#     iota_gamma = parameters[8]
-    
-#     phi_c_min = phi_c_neg_min(phi_s, parameters)
-#     phi_c_max = phi_c_neg_max(phi_s, parameters)
-    
-    
-#     if phi_s < 0 and (phi_c >= (-1*np.pi/2) and phi_c <= 3*np.pi/2):
-#         xyz = parent_pipe_section(phi_s, phi_c, R_p, L_p, R_o)
-#         return xyz
-#     elif (phi_s >= 0 and phi_s < iota_b) and (phi_c >= phi_c_min and phi_c <= phi_c_max):
-#         xyz = bending_pipe_negative_z(phi_s, phi_c, L_p, R_o, R_i, R_p, R_d, iota_b)
-#         return xyz
-#     elif phi_s >= iota_b and (phi_c >= phi_c_min and phi_c <= phi_c_max):
-#         xyz = daughter_negative_z(phi_s, phi_c, iota_b, L_p, R_i, R_o, R_p, R_d)
-#         return xyz
-#     else:
-#         return
     
 def position_A(parameters, delta_alpha, scalar):
     def phi_c_pos_min_lambda(phi_s, parameters, scalar):
