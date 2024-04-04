@@ -12,3 +12,5 @@
 /PreCarinaGeometry.jpg
 __pycache__/bifurcation_vectors_class.cpython-311.pyc
 __pycache__/stylianou_geometry_equations.cpython-311.pyc
+__pycache__/bifurcation_mesh_class.cpython-311.pyc
+__pycache__/utility_functions_bifurcation.cpython-311.pyc
