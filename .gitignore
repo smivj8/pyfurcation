@@ -10,3 +10,5 @@
 /pointcloud_bifurcation.csv
 /positive_y_stl.stl
 /PreCarinaGeometry.jpg
+__pycache__/bifurcation_vectors_class.cpython-311.pyc
+__pycache__/stylianou_geometry_equations.cpython-311.pyc
