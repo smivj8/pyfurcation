@@ -71,12 +71,21 @@ class bifurcation_free_vertices:
         return 
     
     def rotate_vertices(self, matrix):
-        self.inlet_free_vertices = matrix @ self.inlet_free_vertices
-        self.positive_outlet_free_vertices = matrix @ self.positive_outlet_free_vertices
-        self.negative_outlet_free_vertices = matrix @ self.negative_outlet_free_vertices
+        for ind, vertex in enumerate(self.inlet_free_vertices):
+            self.inlet_free_vertices[ind] = matrix @ self.inlet_free_vertices[ind]
+        for ind, vertex in enumerate(self.positive_outlet_free_vertices):
+            self.positive_outlet_free_vertices[ind] = matrix @ self.positive_outlet_free_vertices[ind]
+        for ind, vertex in enumerate(self.negative_outlet_free_vertices):
+            self.negative_outlet_free_vertices[ind] = matrix @ self.negative_outlet_free_vertices[ind]
         
 
     def translate_vertices(self, translation_vector):
+        # for ind, vertex in enumerate(self.inlet_free_vertices):
+        #     self.inlet_free_vertices[ind] = self.inlet_free_vertices[ind] + translation_vector
+        # for ind, vertex in enumerate(self.positive_outlet_free_vertices):
+        #     self.positive_outlet_free_vertices[ind] = self.positive_outlet_free_vertices[ind] + translation_vector
+        # for ind, vertex in enumerate(self.negative_outlet_free_vertices):
+        #     self.negative_outlet_free_vertices[ind] = self.negative_outlet_free_vertices[ind] + translation_vector
         self.inlet_free_vertices = self.inlet_free_vertices + translation_vector
         self.positive_outlet_free_vertices = self.positive_outlet_free_vertices + translation_vector
         self.negative_outlet_free_vertices = self.negative_outlet_free_vertices + translation_vector
