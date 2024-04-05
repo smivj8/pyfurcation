@@ -154,48 +154,8 @@ class bifurcation_mesh:
         else:
             pass
         self.truncated_mesh = truncated_mesh
-        return
+        return self.truncated_mesh
 
-    def get_free_edge_vertices(self, inlet_outlet_index):
-        #inlet_outlet_index: 0 = inlet, 1 = positive_outlet, 2 = negative_outlet
-        free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
-        numpy_free_edges = np.asarray(free_edges)
-        bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
-        bifurcation_free_vertices = np.asarray(self.truncated_mesh.vertices)[bifurcation_free_vertex_index]
-        free_vertices = []
-        #free_vertex_index = []
-        if inlet_outlet_index == 0:
-            #Get Inlet free edge vertices
-            for ind, val in enumerate(bifurcation_free_vertices):
-                if val[0] < np.abs(self.L_d/10):
-                    free_vertices.append(val)
-                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
-                else:
-                    pass
-        elif inlet_outlet_index == 1:
-            #Get positive z outlet free edge vertices
-            for ind, val in enumerate(bifurcation_free_vertices):
-                if val[0] > np.abs(self.L_d/10) and val[2] > 0:
-                    free_vertices.append(val)
-                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
-                else:
-                    pass
-        elif inlet_outlet_index == 2:
-            #Get negative z outlet free edge vertices
-            for ind, val in enumerate(bifurcation_free_vertices):
-                if val[0] > np.abs(self.L_d/10) and val[2] < 0:
-                    free_vertices.append(val)
-                    #free_vertex_index.append(bifurcation_free_vertex_index[ind])
-                else:
-                    pass
-        free_vertices = np.array(free_vertices)
-        #free_vertex_index = np.array(free_vertex_index)
-        #self.free_vertices = free_vertices
-        return free_vertices
-    
-    def organize_free_vertices(self):
-        
-        return
         
     def cap_terminal_outlets(self):
             

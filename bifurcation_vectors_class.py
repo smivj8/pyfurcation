@@ -60,7 +60,7 @@ class bifurcation_vectors:
         
         return self.n_D_pos, self.n_D_neg
     
-    def rotate(self, matrix):
+    def rotate_vector(self, matrix):
         if self.is_normal:
             self.n_D_pos = matrix @ self.n_D_pos
             self.n_D_neg = matrix @ self.n_D_neg
@@ -70,7 +70,7 @@ class bifurcation_vectors:
             self.r_D_pos = matrix @ self.r_D_neg
             return self.r_D_pos, self.r_D_neg
 
-    def translate(self, translation_vector):
+    def translate_vector(self, translation_vector):
         if self.is_normal:
             # I dont think I'm going to translate normal vectors for the purpose
             self.n_D_pos = self.n_D_pos + translation_vector

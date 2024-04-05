@@ -1,6 +1,7 @@
 import numpy as np
 from bifurcation_vectors_class import bifurcation_vectors
 from bifurcation_mesh_class import bifurcation_mesh
+from bifurcation_free_vertices_class import bifurcation_free_vertices
 from stylianou_geometry_equations import R_i
 import open3d as o3d
 
@@ -16,29 +17,51 @@ parameters_1 = [R_1, 0, R_2, L_2, R_o_1, R_i, iota_b_test, delta_alpha_test, iot
 
 bifurcation_mesh_0 = bifurcation_mesh(parameters_0)
 bifurcation_mesh_1 = bifurcation_mesh(parameters_1)
-mesh_0 = bifurcation_mesh_0.cropped_mesh
-mesh_0 = bifurcation_mesh_1.cropped_mesh
 
 mesh_0 = bifurcation_mesh_0.truncated_mesh
+mesh_1 = bifurcation_mesh_1.truncated_mesh
 
 print("\n DONE GENERATING MESH\n")
 
-inlet_free_vertices = bifurcation_mesh_0.get_free_edge_vertices(0)
-pos_z_outlet_free_vertices = bifurcation_mesh_0.get_free_edge_vertices(1)
-neg_z_outlet_free_vertices = bifurcation_mesh_0.get_free_edge_vertices(2)
+#Testing Rotation Functionality:
+inlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 0).get_inlet_free_vertices()
+pos_z_outlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 1).get_positive_outlet_free_vertices()
+neg_z_outlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 2).get_negative_outlet_free_vertices()
+
+inlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 0).get_inlet_free_vertices()
+pos_z_outlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 1).get_positive_outlet_free_vertices()
+neg_z_outlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 2).get_negative_outlet_free_vertices()
+
+# r_pos_0, r_neg_0 = bifurcation_vectors(parameters_0, False).calculate_outlet_positions()
+# n_pos_0, n_neg_0 = bifurcation_vectors(parameters_0, True).calculate_outlet_normals()
+r_pos_0 = bifurcation_vectors(parameters_0, False).r_D_pos
+
+
+r_pos_1, r_neg_1 = bifurcation_vectors(parameters_1, False).calculate_outlet_positions()
+n_pos_1, n_neg_1 = bifurcation_vectors(parameters_1, True).calculate_outlet_normals()
 
 
 
+print("\nDEBUGGING STOP IF NEEDED\n")
 
 #CONVERTING numpy xyz to open3d pointcloud
-inlet_pointcloud = o3d.geometry.PointCloud()
-inlet_pointcloud.points = o3d.utility.Vector3dVector(inlet_free_vertices)
+inlet_pointcloud_0 = o3d.geometry.PointCloud()
+inlet_pointcloud_0.points = o3d.utility.Vector3dVector(inlet_free_vertices_0)
+inlet_pointcloud_1 = o3d.geometry.PointCloud()
+inlet_pointcloud_1.points = o3d.utility.Vector3dVector(inlet_free_vertices_1)
 
-outlet_pos_pointcloud = o3d.geometry.PointCloud()
-outlet_pos_pointcloud.points = o3d.utility.Vector3dVector(pos_z_outlet_free_vertices)
+outlet_pos_pointcloud_0 = o3d.geometry.PointCloud()
+outlet_pos_pointcloud_0.points = o3d.utility.Vector3dVector(pos_z_outlet_free_vertices_0)
+outlet_pos_pointcloud_1 = o3d.geometry.PointCloud()
+outlet_pos_pointcloud_1.points = o3d.utility.Vector3dVector(pos_z_outlet_free_vertices_1)
 
-outlet_neg_pointcloud = o3d.geometry.PointCloud()
-outlet_neg_pointcloud.points = o3d.utility.Vector3dVector(neg_z_outlet_free_vertices)
+outlet_neg_pointcloud_0 = o3d.geometry.PointCloud()
+outlet_neg_pointcloud_0.points = o3d.utility.Vector3dVector(neg_z_outlet_free_vertices_0)
+outlet_neg_pointcloud_1 = o3d.geometry.PointCloud()
+outlet_neg_pointcloud_1.points = o3d.utility.Vector3dVector(neg_z_outlet_free_vertices_1)
 
-o3d.visualization.draw_geometries([mesh_0, outlet_neg_pointcloud], window_name = "Visualization",
+visualization = [mesh_0, mesh_1, inlet_pointcloud_0, inlet_pointcloud_1, outlet_pos_pointcloud_0, 
+                 outlet_pos_pointcloud_1, outlet_neg_pointcloud_0, outlet_neg_pointcloud_1]
+
+o3d.visualization.draw_geometries(visualization, window_name = "Visualization",
                                    mesh_show_wireframe = True, mesh_show_back_face = True)
