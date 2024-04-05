@@ -109,10 +109,9 @@ class bifurcation_mesh:
         #Crop Daughter ends
             # z pos crop
             #find x_max
-        position_vec = bifurcation_vectors(self.parameters, False)
-        r_pos, _ = position_vec.calculate_outlet_positions()
-        normal_vec = bifurcation_vectors(self.parameters, True)
-        n_pos, _ = normal_vec.calculate_outlet_normals()
+        vectors = bifurcation_vectors(self.parameters)
+        r_pos = vectors.r_pos
+        n_pos = vectors.n_pos
         
         cos_theta = np.dot(n_pos, r_pos)/np.linalg.norm(r_pos)
         hypot_max = np.linalg.norm(r_pos)*cos_theta
@@ -132,10 +131,9 @@ class bifurcation_mesh:
         return
     
     def truncate_continuation_outlet(self):
-        position_vec = bifurcation_vectors(self.parameters, False)
-        r_pos, _ = position_vec.calculate_outlet_positions()
-        normal_vec = bifurcation_vectors(self.parameters, True)
-        n_pos, _ = normal_vec.calculate_outlet_normals()
+        vectors = bifurcation_vectors(self.parameters)
+        r_pos = vectors.r_pos
+        n_pos = vectors.n_pos
         cos_theta = np.dot(n_pos, r_pos)/np.linalg.norm(r_pos)
         hypot_max = np.linalg.norm(r_pos)*cos_theta
         truncation_distance = hypot_max*0.97

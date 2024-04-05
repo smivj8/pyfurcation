@@ -3,6 +3,7 @@ from bifurcation_vectors_class import bifurcation_vectors
 from bifurcation_mesh_class import bifurcation_mesh
 from bifurcation_free_vertices_class import bifurcation_free_vertices
 from stylianou_geometry_equations import R_i
+from utility_functions_bifurcation import rotation_matrix_about_y
 import open3d as o3d
 
 D_0 = 100; R_0 = D_0/2; R_1 = D_0/2.48888; L_0 = 0; L_1 = 4.08888*R_1
@@ -24,21 +25,32 @@ mesh_1 = bifurcation_mesh_1.truncated_mesh
 print("\n DONE GENERATING MESH\n")
 
 #Testing Rotation Functionality:
-inlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 0).get_inlet_free_vertices()
-pos_z_outlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 1).get_positive_outlet_free_vertices()
-neg_z_outlet_free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0, 2).get_negative_outlet_free_vertices()
+free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0)
+inlet_free_vertices_0 = free_vertices_0.inlet_free_vertices
+pos_z_outlet_free_vertices_0 = free_vertices_0.positive_outlet_free_vertices
+neg_z_outlet_free_vertices_0 = free_vertices_0.negative_outlet_free_vertices
 
-inlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 0).get_inlet_free_vertices()
-pos_z_outlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 1).get_positive_outlet_free_vertices()
-neg_z_outlet_free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1, 2).get_negative_outlet_free_vertices()
-
-# r_pos_0, r_neg_0 = bifurcation_vectors(parameters_0, False).calculate_outlet_positions()
-# n_pos_0, n_neg_0 = bifurcation_vectors(parameters_0, True).calculate_outlet_normals()
-r_pos_0 = bifurcation_vectors(parameters_0, False).r_D_pos
+free_vertices_1 = bifurcation_free_vertices(parameters_1, mesh_1)
+inlet_free_vertices_1 = free_vertices_1.inlet_free_vertices
+pos_z_outlet_free_vertices_1 = free_vertices_1.positive_outlet_free_vertices
+neg_z_outlet_free_vertices_1 = free_vertices_1.negative_outlet_free_vertices
 
 
-r_pos_1, r_neg_1 = bifurcation_vectors(parameters_1, False).calculate_outlet_positions()
-n_pos_1, n_neg_1 = bifurcation_vectors(parameters_1, True).calculate_outlet_normals()
+
+vectors_0 = bifurcation_vectors(parameters_0)
+r_pos_0 = vectors_0.r_pos
+r_neg_0 = vectors_0.r_neg
+n_pos_0 = vectors_0.n_pos
+n_neg_0 = vectors_0.n_neg
+
+
+matrix = rotation_matrix_about_y(np.pi)
+vectors_rotation = bifurcation_vectors(parameters_0)
+vectors_rotation.rotate_vector(matrix)
+r_pos_1 = vectors_rotation.r_pos
+r_neg_1 = vectors_rotation.r_neg
+n_pos_1 = vectors_rotation.n_pos
+n_neg_1 = vectors_rotation.n_neg
 
 
 
