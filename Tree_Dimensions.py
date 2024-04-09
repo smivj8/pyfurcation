@@ -7,24 +7,24 @@ Created on Sat Mar  2 22:15:43 2024
 
 import numpy as np
 
-# D_p = 10; R_p = D_p/2; R_d = D_p/2.48888; L_p = 3.92857*R_p; L_d = 4.08888*R_d
-# R_o = 5*R_d; iota_b = 35*np.pi/180; iota_gamma = 39.83 * np.pi/180
-# delta_alpha = 3.6*np.pi/180
+arr1 = np.array([[24045, 24046],
+                 [24030, 24035],
+                 [24017, 24018],
+                 [24164, 24165],
+                 [24020, 24024],
+                 [24114, 24115],
+                 [24022, 24023],
+                 [24019, 24020],
+                 [24019, 24021],
+                 [24021, 24022],
+                 [24018, 24023],
+                 [24137, 24139],
+                 [24027, 24043]])
+
+#arr1 = np.append(arr1, np.array([25000, 25000]))
+arr1 = np.vstack((arr1, np.array([2500,24567])))
 
 
-# g0_diameter = 2
+print(arr1)
 
-arr1 = np.array([[1,2],
-                 [3,4],
-                 [5,6],
-                 [6,7],
-                 [8,9],
-                 [10,11],
-                 [12,13]])
 
-arr2 = np.array([3,9,4,7,5,1,9])
-
-sort_index = arr2.argsort()
-
-sorted_arr1 = arr1[sort_index]
-arr2.sort()
