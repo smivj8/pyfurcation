@@ -118,11 +118,16 @@ class bifurcation_free_vertices:
     def rotate_vertices(self, matrix):
         for ind, vertex in enumerate(self.inlet_free_vertices):
             self.inlet_free_vertices[ind] = matrix @ self.inlet_free_vertices[ind]
-        for ind, vertex in enumerate(self.positive_outlet_free_vertices):
-            self.positive_outlet_free_vertices[ind] = matrix @ self.positive_outlet_free_vertices[ind]
-        for ind, vertex in enumerate(self.negative_outlet_free_vertices):
-            self.negative_outlet_free_vertices[ind] = matrix @ self.negative_outlet_free_vertices[ind]
-        
+        if self.n_cont_outlets == 2:
+            for ind, vertex in enumerate(self.positive_outlet_free_vertices):
+                self.positive_outlet_free_vertices[ind] = matrix @ self.positive_outlet_free_vertices[ind]
+            for ind, vertex in enumerate(self.negative_outlet_free_vertices):
+                self.negative_outlet_free_vertices[ind] = matrix @ self.negative_outlet_free_vertices[ind]
+        elif self.n_cont_outlets == 1:
+            for ind, vertex in enumerate(self.positive_outlet_free_vertices):
+                self.positive_outlet_free_vertices[ind] = matrix @ self.positive_outlet_free_vertices[ind]
+        else:
+            pass
 
     def translate_vertices(self, translation_vector):
         # for ind, vertex in enumerate(self.inlet_free_vertices):
