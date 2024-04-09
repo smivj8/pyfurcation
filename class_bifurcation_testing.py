@@ -13,14 +13,14 @@ delta_alpha_test = 3.6*np.pi/180
 D_1 = R_1*2; R_2 = D_1/2.48888; L_0 = 0; L_2 = 4.08888*R_2
 R_o_1 = 5*R_2
 
-parameters_0 = [R_0, 0, R_1, L_1, R_o_0, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
+parameters_0 = [R_0, 0, R_1, L_1, R_o_0, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 0]
 parameters_1 = [R_1, 0, R_2, L_2, R_o_1, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
 
 bifurcation_mesh_0 = bifurcation_mesh(parameters_0)
 bifurcation_mesh_1 = bifurcation_mesh(parameters_1)
 
-mesh_0 = bifurcation_mesh_0.truncated_mesh
-mesh_1 = bifurcation_mesh_1.truncated_mesh
+mesh_0 = bifurcation_mesh_0.capped_mesh
+mesh_1 = bifurcation_mesh_1.capped_mesh
 
 print("\n DONE GENERATING MESH\n")
 
@@ -59,8 +59,12 @@ n_neg_1_rotated = vectors_1_rotation.n_neg
 #Initialize free vertices
 free_vertices_0 = bifurcation_free_vertices(parameters_0, mesh_0)
 inlet_free_vertices_0 = free_vertices_0.inlet_free_vertices
+inlet_free_edges_0 = free_vertices_0.inlet_free_edges
 pos_z_outlet_free_vertices_0 = free_vertices_0.positive_outlet_free_vertices
-neg_z_outlet_free_vertices_0 = free_vertices_0.negative_outlet_free_vertices
+pos_z_outlet_free_edges_0 = free_vertices_0.positive_outlet_free_edges
+#neg_z_outlet_free_vertices_0 = free_vertices_0.negative_outlet_free_vertices
+#neg_z_outlet_free_edges_0 = free_vertices_0.negative_outlet_free_edges
+
 
 free_vertices_1_transformed = bifurcation_free_vertices(parameters_1, mesh_1)
 free_vertices_1_transformed.rotate_vertices(R1)
@@ -68,7 +72,9 @@ free_vertices_1_transformed.rotate_vertices(R2)
 free_vertices_1_transformed.translate_vertices(r_pos_0)
 inlet_free_vertices_1 = free_vertices_1_transformed.inlet_free_vertices
 pos_z_outlet_free_vertices_1 = free_vertices_1_transformed.positive_outlet_free_vertices
-neg_z_outlet_free_vertices_1 = free_vertices_1_transformed.negative_outlet_free_vertices
+#neg_z_outlet_free_vertices_1 = free_vertices_1_transformed.negative_outlet_free_vertices
+
+
 
 print("\nDEBUGGING STOP IF NEEDED\n")
 
@@ -78,18 +84,9 @@ inlet_pointcloud_0.points = o3d.utility.Vector3dVector(inlet_free_vertices_0)
 inlet_pointcloud_1 = o3d.geometry.PointCloud()
 inlet_pointcloud_1.points = o3d.utility.Vector3dVector(inlet_free_vertices_1)
 
-outlet_pos_pointcloud_0 = o3d.geometry.PointCloud()
-outlet_pos_pointcloud_0.points = o3d.utility.Vector3dVector(pos_z_outlet_free_vertices_0)
-outlet_pos_pointcloud_1 = o3d.geometry.PointCloud()
-outlet_pos_pointcloud_1.points = o3d.utility.Vector3dVector(pos_z_outlet_free_vertices_1)
 
-outlet_neg_pointcloud_0 = o3d.geometry.PointCloud()
-outlet_neg_pointcloud_0.points = o3d.utility.Vector3dVector(neg_z_outlet_free_vertices_0)
-outlet_neg_pointcloud_1 = o3d.geometry.PointCloud()
-outlet_neg_pointcloud_1.points = o3d.utility.Vector3dVector(neg_z_outlet_free_vertices_1)
-
-visualization = [mesh_0, mesh_1, inlet_pointcloud_0, inlet_pointcloud_1, outlet_pos_pointcloud_0, 
-                 outlet_pos_pointcloud_1, outlet_neg_pointcloud_0, outlet_neg_pointcloud_1]
+visualization = [mesh_0, mesh_1, inlet_pointcloud_0, inlet_pointcloud_1]#, outlet_pos_pointcloud_0, 
+                 #outlet_pos_pointcloud_1]
 
 o3d.visualization.draw_geometries(visualization, window_name = "Visualization",
                                    mesh_show_wireframe = True, mesh_show_back_face = True)

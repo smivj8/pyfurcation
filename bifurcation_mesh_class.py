@@ -1,4 +1,5 @@
 from bifurcation_vectors_class import bifurcation_vectors
+from bifurcation_free_vertices_class import bifurcation_free_vertices
 import numpy as np
 import open3d as o3d
 from utility_functions_bifurcation import *
@@ -17,7 +18,8 @@ class bifurcation_mesh:
         self.generate_o3d_pointcloud()
         self.generate_o3d_mesh() 
         self.crop_bifurcation_mesh()
-        self.truncate_continuation_outlet()
+        self.truncate_continuation_outlets()
+        self.cap_terminal_outlets()
 
 
     def generate_parametric_xyz(self, n_circ = 100, n_streamline = 120, 
@@ -130,7 +132,7 @@ class bifurcation_mesh:
 
         return
     
-    def truncate_continuation_outlet(self):
+    def truncate_continuation_outlets(self):
         vectors = bifurcation_vectors(self.parameters)
         r_pos = vectors.r_pos
         n_pos = vectors.n_pos
@@ -156,7 +158,53 @@ class bifurcation_mesh:
 
         
     def cap_terminal_outlets(self):
-            
+        vectors = bifurcation_vectors(self.parameters)
+        free_vertices = bifurcation_free_vertices(self.parameters, self.truncated_mesh)
+        if self.n_cont_outlets == 1:
+            r_neg = vectors.r_neg
+            vertices = np.asarray(self.truncated_mesh.vertices)
+            vertices = np.vstack([vertices, r_neg])
+            negative_outlet_free_edges = free_vertices.negative_outlet_free_edges
+            new_triangles = np.zeros((negative_outlet_free_edges.shape[0], 3))
+            new_triangles[:,0] = negative_outlet_free_edges[:,0]
+            new_triangles[:,1] = negative_outlet_free_edges[:,1]
+            new_triangles[:,2] = np.shape(vertices)[0] - 1
+            triangles = np.asarray(self.truncated_mesh.triangles)
+            triangles = np.vstack([triangles, new_triangles])
+            capped_mesh = o3d.geometry.TriangleMesh()
+            capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
+            capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+            self.capped_mesh = capped_mesh
+        elif self.n_cont_outlets == 0:
+            r_pos = vectors.r_pos
+            r_neg = vectors.r_neg
+            vertices = np.asarray(self.truncated_mesh.vertices)
+            vertices = np.vstack([vertices, r_pos, r_neg])
+            positive_outlet_free_edges = free_vertices.positive_outlet_free_edges
+            positive_new_triangles = np.zeros((positive_outlet_free_edges.shape[0], 3))
+            positive_new_triangles[:,0] = positive_outlet_free_edges[:,0]
+            positive_new_triangles[:,1] = positive_outlet_free_edges[:,1]
+            positive_new_triangles[:,2] = np.shape(vertices)[0] - 2
+            negative_outlet_free_edges = free_vertices.negative_outlet_free_edges
+            negative_new_triangles = np.zeros((negative_outlet_free_edges.shape[0], 3))
+            negative_new_triangles[:,0] = negative_outlet_free_edges[:,0]
+            negative_new_triangles[:,1] = negative_outlet_free_edges[:,1]
+            negative_new_triangles[:,2] = np.shape(vertices)[0] - 1
+            triangles = np.asarray(self.truncated_mesh.triangles)
+            triangles = np.vstack([triangles, positive_new_triangles, negative_new_triangles])
+            capped_mesh = o3d.geometry.TriangleMesh()
+            capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
+            capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+            self.capped_mesh = capped_mesh
+        else:
+            self.capped_mesh = self.truncated_mesh
+
+        
+
+
+
+
+
         return
 
     
