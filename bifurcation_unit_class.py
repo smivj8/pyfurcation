@@ -1,8 +1,8 @@
+import numpy as np
+import open3d as o3d
 from bifurcation_vectors_class import bifurcation_vectors
 from bifurcation_mesh_class import bifurcation_mesh
 from bifurcation_free_vertices_class import bifurcation_free_vertices
-import numpy as np
-import open3d as o3d
 
 class bifurcation_unit:
 
