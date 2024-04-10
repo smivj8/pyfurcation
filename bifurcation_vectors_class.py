@@ -65,7 +65,5 @@ class bifurcation_vectors:
         self.r_neg = matrix @ self.r_neg
 
     def translate_vector(self, translation_vector):
-        self.n_pos = self.n_pos + translation_vector
-        self.n_neg = self.n_neg + translation_vector
         self.r_pos = self.r_pos + translation_vector
         self.r_neg = self.r_neg + translation_vector

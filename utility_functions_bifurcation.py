@@ -149,3 +149,85 @@ def rotation_about_vector_u(u, theta):
                       [-1*u[1], u[0],   0      ]])
     R = np.cos(theta)*np.identity(3) + np.sin(theta)*U_mat + (1-np.cos(theta)) * np.outer(u, u)    
     return R
+
+def order_vertices(vertices):
+    n_vert = vertices.shape[0]
+    theta = np.zeros(n_vert)
+    for ind, vertex in enumerate(vertices):
+        y_coord = vertex[1]
+        z_coord = vertex[2]
+        #There is certainly a better way to do this, but this is the most robust way to minimize errors
+        if y_coord == 0 and z_coord < 0:
+            theta[ind] = -np.pi/2
+        elif y_coord == 0 and z_coord > 0:
+            theta[ind] = np.pi/2
+        elif z_coord == 0 and y_coord > 0:
+            theta[ind] = 0
+        elif z_coord == 0 and y_coord < 0:
+            theta[ind] = np.pi
+        elif y_coord > 0:
+            theta[ind] = np.arctan(z_coord/y_coord) 
+        elif y_coord < 0:
+            theta[ind] = np.arctan(z_coord/y_coord) + np.pi
+        else:
+            #sanity check that I covered all cases
+            assert False
+    #Now that we have the theta index for all vertices, sort the vertices by theta
+    sort_index = theta.argsort()
+    ordered_vertices = vertices[sort_index]
+    theta.sort()
+    return ordered_vertices, theta
+
+def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
+    #Transform (rotation only?) vertices to be along x axis
+    matrix = unit_vector_match_rotation(orientation, np.array([1,0,0]))
+    for ind, vertex in enumerate(proximal_vertices):
+        proximal_vertices[ind] = matrix @ proximal_vertices[ind]
+    for ind, vertex in enumerate(distal_vertices):
+        distal_vertices[ind] = matrix @ distal_vertices[ind]
+    #Order vertices by theta along circle
+    proximal_vertices, proximal_theta = order_vertices(proximal_vertices)
+    distal_vertices, distal_theta = order_vertices(distal_vertices)
+    ###create (downward facing) triangles originating from proximal end
+    n_proximal = len(proximal_theta)
+    n_distal = len(distal_theta)
+    proximal_triangles = np.zeros(proximal_vertices.shape)
+        #Create first n-1 triangles
+    for proximal_index in range(n_proximal - 1):
+        distal_index = 0
+        while distal_theta[distal_index] <= proximal_theta[proximal_index] and distal_index < n_distal - 1:
+            distal_index += 1
+        v3_index = n_proximal + distal_index
+        proximal_triangles[proximal_index] = np.array([proximal_index, proximal_index + 1, v3_index])
+    #create last triangle
+    proximal_triangles[n_proximal-1] = np.array([0, n_proximal - 1, n_proximal + n_distal - 1])
+    #AAAAAAAAAAAAAAAAAAAAAAA IT WORKED!!!!
+    ###create proximal pointing (upward facing) triangles
+    distal_index = 0
+    distal_triangles = np.zeros(distal_vertices.shape)
+    #create first n-1 triangles
+    for distal_index in range(n_distal - 1):
+        v1_index = distal_index + n_proximal
+        v2_index = v1_index + 1
+        proximal_index = 0
+        while proximal_index < n_proximal - 1 and proximal_theta[proximal_index] < distal_theta[distal_index]:
+            proximal_index += 1
+        v3_index = proximal_index
+        distal_triangles[distal_index] = np.array([v1_index, v2_index, v3_index])
+    #create last triangle
+    distal_triangles[n_distal - 1] = np.array([0, n_proximal + n_distal - 1, n_proximal])
+
+    #return vertices back to original orientation
+    inverse_matrix = unit_vector_match_rotation(np.array([1,0,0]), orientation)
+    for ind, vertex in enumerate(proximal_vertices):
+        proximal_vertices[ind] = inverse_matrix @ proximal_vertices[ind]
+    for ind, vertex in enumerate(distal_vertices):
+        distal_vertices[ind] = inverse_matrix @ distal_vertices[ind]
+    #create o3d mesh and output it
+    junction_vertices = np.vstack([proximal_vertices, distal_vertices])
+    junction_triangles = np.vstack([proximal_triangles, distal_triangles])
+    junction_mesh = o3d.geometry.TriangleMesh()
+    junction_mesh.vertices = o3d.utility.Vector3dVector(junction_vertices)
+    #TODO replace triangles with total mesh triangles
+    junction_mesh.triangles = o3d.utility.Vector3iVector(junction_triangles)
+    return junction_mesh
