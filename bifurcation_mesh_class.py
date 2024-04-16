@@ -198,13 +198,6 @@ class bifurcation_mesh:
             self.capped_mesh = capped_mesh
         else:
             self.capped_mesh = self.truncated_mesh
-
-        
-
-
-
-
-
         return
 
     
