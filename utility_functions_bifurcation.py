@@ -1,5 +1,6 @@
 import numpy as np
 import open3d as o3d
+from stylianou_geometry_equations import r_positive
 
 def sliceplane(mesh, axis, value, direction):
     # axis can be 0,1,2 (which corresponds to x,y,z)
@@ -231,3 +232,46 @@ def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
     #TODO replace triangles with total mesh triangles
     junction_mesh.triangles = o3d.utility.Vector3iVector(junction_triangles)
     return junction_mesh
+
+def calculate_outlet_positions(parameters):
+    R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
+    L_d = parameters[3]; R_o = parameters[4]; R_i = parameters[5]
+    iota_b = parameters[6]; delta_alpha = parameters[7]
+    iota_gamma = parameters[8]
+    eta = np.tan(iota_gamma - iota_b)
+    phi_s_max = iota_b + np.arctan(eta + (L_d/R_o))
+    def phi_c_pos_min_lambda(phi_s, parameters, scalar):
+        return -1*np.pi/2
+    def phi_c_pos_max_lambda(phi_s, parameters, scalar):
+        return 3*np.pi/2
+    r0, _ =  r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
+    rpi, _ = r_positive(phi_s_max, np.pi, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
+    r_pos = ((r0 + rpi)/2)   
+    r_neg = np.zeros(3)
+    r_neg[0] = r_pos[0]
+    r_neg[1] = r_pos[1]
+    r_neg[2] = -1*r_pos[2]
+    return r_pos, r_neg
+
+def calculate_outlet_normals(parameters):
+    R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
+    L_d = parameters[3]; R_o = parameters[4]; R_i = parameters[5]
+    iota_b = parameters[6]; delta_alpha = parameters[7]
+    iota_gamma = parameters[8]
+    eta = np.tan(iota_gamma - iota_b)
+    phi_s_max = iota_b + np.arctan(eta + (L_d/R_o))
+    def phi_c_pos_min_lambda(phi_s, parameters, scalar):
+        return -1*np.pi/2
+    def phi_c_pos_max_lambda(phi_s, parameters, scalar):
+        return 3*np.pi/2
+    r_C, _ = r_positive(iota_b, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
+    r_F, _ = r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
+    n_pos = ((r_F - r_C)/np.linalg.norm((r_F - r_C)))
+        
+    n_neg = np.zeros(3)
+        
+    n_neg[0] = n_pos[0]
+    n_neg[1] = n_pos[1]
+    n_neg[2] = -1*n_pos[2]
+    
+    return n_pos, n_neg
