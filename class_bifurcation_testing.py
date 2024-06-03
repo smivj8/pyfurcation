@@ -70,4 +70,4 @@ combined_mesh.compute_triangle_normals()
 o3d.visualization.draw_geometries(visualization, window_name = "Visualization",
                                    mesh_show_wireframe = True, mesh_show_back_face = True)
 
-o3d.io.write_triangle_mesh("Second_Half_mesh.stl", combined_mesh)
+#o3d.io.write_triangle_mesh("Second_Half_mesh.stl", combined_mesh)
