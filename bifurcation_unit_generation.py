@@ -10,6 +10,12 @@ Description:
 
 Author: smit3sl@mail.uc.edu
 """
+
+###################################################################
+#           DO NOT USE THIS ANY MORE. OUTDATED                    #
+###################################################################
+
+
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.spatial as spatial

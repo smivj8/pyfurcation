@@ -229,7 +229,7 @@ def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
     junction_triangles = np.vstack([proximal_triangles, distal_triangles])
     junction_mesh = o3d.geometry.TriangleMesh()
     junction_mesh.vertices = o3d.utility.Vector3dVector(junction_vertices)
-    #TODO replace triangles with total mesh triangles
+    #TODO replace triangles with total mesh triangles (i dont remember what this means????)
     junction_mesh.triangles = o3d.utility.Vector3iVector(junction_triangles)
     return junction_mesh
 
