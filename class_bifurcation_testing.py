@@ -41,6 +41,6 @@ combined_mesh.compute_triangle_normals()
 o3d.visualization.draw_geometries(visualization, window_name = "Visualization",
                                    mesh_show_wireframe = True, mesh_show_back_face = True)
 
-o3d.io.write_triangle_mesh("Four_Generations_Mesh.stl", combined_mesh)
+#o3d.io.write_triangle_mesh("Four_Generations_Mesh.stl", combined_mesh)
 print(f"Acinus Location:    {acinus_location}\n")
 print(f"Acinus Orientation: {acinus_orientation}\n")
