@@ -40,6 +40,7 @@ class bifurcation_mesh:
         self.crop_bifurcation_mesh()
         self.truncate_continuation_outlets()
         self.cap_terminal_outlets()
+        self.cap_initial_inlet()
 
 
     def generate_parametric_xyz(self, n_circ = 100, n_streamline = 120, 
@@ -241,7 +242,6 @@ class bifurcation_mesh:
         Method for capping terminal outlets. If the outlet will NOT connect to another
         unit or acinus, close the outlet (untruncated) to finish with watertight mesh.
         """
-        #TODO: method for capping the inlet of the initial 
         #Get vectors and free vertices of the mesh
         vectors = bifurcation_vectors(self.parameters)
         free_vertices = bifurcation_free_vertices(self.parameters, self.truncated_mesh)
@@ -290,4 +290,39 @@ class bifurcation_mesh:
             #cap neither outlet (they should already both be truncated, then)
             self.capped_mesh = self.truncated_mesh
         return
+    
+    def cap_initial_inlet(self):
+        """
+        Method for capping the inlet of the initial bifurcation unit mesh for an overall
+        watertight mesh.
+        """
+        free_vertices = bifurcation_free_vertices(self.parameters, self.truncated_mesh)
+        vertices = np.asarray(self.capped_mesh.vertices)
+        vertices = np.vstack([vertices, np.zeros(3)])
+        inlet_free_edges = free_vertices.inlet_free_edges
+        new_triangles = np.zeros((inlet_free_edges.shape[0], 3))
+        new_triangles[:,0] = inlet_free_edges[:,0]
+        new_triangles[:,1] = inlet_free_edges[:,1]
+        new_triangles[:,2] = np.shape(vertices)[0] - 1
+        triangles = np.asarray(self.capped_mesh.triangles)
+        triangles = np.vstack([triangles, new_triangles])
+        initial_capped_mesh = o3d.geometry.TriangleMesh()
+        initial_capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
+        initial_capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+        self.initial_capped_mesh = initial_capped_mesh
+    
+    def perform_mesh_analysis(self):
+        """
+        Method that returns analysis of the mesh using open3d defined functions.
+        Returns:
+
+        """
+        analysis_mesh = self.initial_capped_mesh
+        if self.n_cont_outlets != 0:
+            analysis = [None, None]
+        else:
+            volume = analysis_mesh.get_volume()
+            surface_area = analysis_mesh.get_surface_area()
+            analysis = [volume, surface_area]
+        return analysis
     

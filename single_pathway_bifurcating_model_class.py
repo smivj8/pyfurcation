@@ -36,8 +36,9 @@ class single_pathway_bifurcating_model:
 
     def generate_single_pathway_bifurcating_tree(self):
         #Initialize mesh and outlet vertices
+        #TODO: Figure out how to implement the capping of the initial mesh
         bifurcation_unit_gen_0 = bifurcation_unit(self.tree_parameters[0])
-        tree_mesh = bifurcation_unit_gen_0.bifurcation_unit_mesh
+        tree_mesh = bifurcation_unit_gen_0.initial_bifurcation_unit_mesh
         cont_outlet_vertices = bifurcation_unit_gen_0.positive_outlet_free_vertices
         #Generate rest of tree
         for k in range(1, self.n_generations):
