@@ -18,14 +18,13 @@ mesh_class = bifurcation_mesh(gen_16)
 mesh = mesh_class.initial_capped_mesh
 print("\n#######################   Done generating mesh   #########################\n")
 
+print(mesh.is_watertight())
 analysis = mesh_class.perform_mesh_analysis()
 volume = analysis[0]*((1E-6)**3)
 surface_area = analysis[1]*((1E-6)**2)
 print(f"Bifurcation Unit Volume: {volume}\n")
 print(f"Bifurcation Unit Area:   {surface_area}\n")
 
-mesh.compute_triangle_normals()
-print(mesh.is_watertight())
 #mesh.get_volume()
 o3d.visualization.draw_geometries([mesh], window_name = "Visualization",
                                    mesh_show_wireframe = True, mesh_show_back_face = True)

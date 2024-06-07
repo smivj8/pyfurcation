@@ -263,6 +263,8 @@ class bifurcation_mesh:
             capped_mesh = o3d.geometry.TriangleMesh()
             capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
             capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+            capped_mesh.compute_triangle_normals()
+            capped_mesh.orient_triangles()
             self.capped_mesh = capped_mesh
         elif self.n_cont_outlets == 0:
             #cap both outlets
@@ -285,10 +287,15 @@ class bifurcation_mesh:
             capped_mesh = o3d.geometry.TriangleMesh()
             capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
             capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+            capped_mesh.compute_triangle_normals()
+            capped_mesh.orient_triangles()
             self.capped_mesh = capped_mesh
         else:
             #cap neither outlet (they should already both be truncated, then)
-            self.capped_mesh = self.truncated_mesh
+            capped_mesh = self.truncated_mesh
+            capped_mesh.compute_triangle_normals()
+            capped_mesh.orient_triangles()
+            self.capped_mesh = capped_mesh
         return
     
     def cap_initial_inlet(self):
@@ -309,6 +316,8 @@ class bifurcation_mesh:
         initial_capped_mesh = o3d.geometry.TriangleMesh()
         initial_capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
         initial_capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
+        initial_capped_mesh.compute_triangle_normals()
+        initial_capped_mesh.orient_triangles()
         self.initial_capped_mesh = initial_capped_mesh
     
     def perform_mesh_analysis(self):
