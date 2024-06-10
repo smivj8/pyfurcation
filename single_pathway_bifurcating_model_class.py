@@ -53,7 +53,7 @@ class single_pathway_bifurcating_model:
             #TODO Everything BUT the junction meshing is now working. It works for the first junction but not afterwards...
             #   NOTE: It is NOT fixed by setting the axial rotations to zero, so the issue is somewhere else, in the ordering
             #         vertices function maybe?    
-            junction_mesh = create_junction_mesh(cont_outlet_vertices, unit_inlet_vertices, self.tree_outlet_normals[k-1])
+            junction_mesh = create_junction_mesh(cont_outlet_vertices, unit_inlet_vertices, self.tree_outlet_normals[k-1], self.tree_outlet_positions[k-1])
             tree_mesh += (bifurcation_unit_gen_k.bifurcation_unit_mesh + junction_mesh)
             cont_outlet_vertices = bifurcation_unit_gen_k.positive_outlet_free_vertices
         self.tree_mesh = tree_mesh
