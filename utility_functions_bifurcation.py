@@ -179,8 +179,10 @@ def order_vertices(vertices):
     theta.sort()
     return ordered_vertices, theta
 
-def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
+def create_junction_mesh(proximal_vertices, distal_vertices, orientation, position):
     #Transform (rotation only?) vertices to be along x axis
+    proximal_vertices = proximal_vertices - position
+    distal_vertices = distal_vertices - position
     matrix = unit_vector_match_rotation(orientation, np.array([1,0,0]))
     for ind, vertex in enumerate(proximal_vertices):
         proximal_vertices[ind] = matrix @ proximal_vertices[ind]
@@ -224,6 +226,8 @@ def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
         proximal_vertices[ind] = inverse_matrix @ proximal_vertices[ind]
     for ind, vertex in enumerate(distal_vertices):
         distal_vertices[ind] = inverse_matrix @ distal_vertices[ind]
+    proximal_vertices = proximal_vertices + position
+    distal_vertices = distal_vertices + position
     #create o3d mesh and output it
     junction_vertices = np.vstack([proximal_vertices, distal_vertices])
     junction_triangles = np.vstack([proximal_triangles, distal_triangles])
@@ -231,6 +235,12 @@ def create_junction_mesh(proximal_vertices, distal_vertices, orientation):
     junction_mesh.vertices = o3d.utility.Vector3dVector(junction_vertices)
     #TODO replace triangles with total mesh triangles (i dont remember what this means????)
     junction_mesh.triangles = o3d.utility.Vector3iVector(junction_triangles)
+    return junction_mesh
+
+def creat_junction_mesh_v2(proximal_edges, proximal_vertices, distal_edges, distal_vertices, orientation):
+    
+    
+    junction_mesh = o3d.geometry.TriangleMesh()
     return junction_mesh
 
 def calculate_outlet_positions(parameters):

@@ -13,13 +13,13 @@ iota_b_test = 35*np.pi/180
 iota_gamma_test = 39.83 * np.pi/180
 delta_alpha_test = 3.6*np.pi/180
 
-#Create 5 generation tree from 13 to 17
+#Create 4 generation tree from 15 to 18
 
-gen_16 = [420, 0, 335, 2010, 1675, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
-gen_17 = [335, 0, 270, 1620, 1350, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
-gen_18 = [270, 0, 215, 1290, 1075, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
-gen_19 = [215, 0, 175, 1050,  875, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
-tree_parameters = [gen_16, gen_17, gen_18, gen_19]
+gen_15 = [420, 0, 335, 2010, 1675, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
+gen_16 = [335, 0, 270, 1620, 1350, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
+gen_17 = [270, 0, 215, 1290, 1075, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
+gen_18 = [215, 0, 175, 1050,  875, R_i, iota_b_test, delta_alpha_test, iota_gamma_test, 1]
+tree_parameters = [gen_15, gen_16, gen_17, gen_18]
 axial_rotations = [0, np.pi/2, 0, np.pi/2]
 
 bifurcating_tree = single_pathway_bifurcating_model(tree_parameters, axial_rotations)
@@ -29,9 +29,11 @@ acinus_orientation = bifurcating_tree.tree_outlet_normals[-1]
 
 print("\nDONE GENERATING MESH\n")
 
-print("\nDEBUGGING STOP IF NEEDED\n")
+
 
 combined_mesh.remove_duplicated_vertices()
+combined_mesh.remove_degenerate_triangles()
+print("\nREMOVED SUPLICATED VERTICES AND DEGENERATE TRIANGLES\n")
 outlet_free_vertice = bifurcating_tree.cont_outlet_vertices
 free_vertices_pcd = o3d.geometry.PointCloud()
 free_vertices_pcd.points = o3d.utility.Vector3dVector(np.vstack([outlet_free_vertice]))
