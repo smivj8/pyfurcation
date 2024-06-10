@@ -6,6 +6,19 @@ from stylianou_geometry_equations import *
 class bifurcation_free_vertices:
 
     def __init__(self, parameters, truncated_mesh):
+        """
+        A class for the determination and manipulation of the free vertices and
+        edges of a bifurcation unit mesh. This class requires both the mesh parameters
+        and the mesh itself (the vertices are not necessarily dependent on the 
+        parameters). 
+
+        Args:
+            parameters (list): bifurcation unit parameters, see github README for more 
+                information
+
+            truncated_mesh (open3d.mesh object): bifurcation unit mesh, with any required
+                continuation outlets truncated. 
+        """
         self.R_p = parameters[0]; self.L_p = parameters[1]; self.R_d = parameters[2]
         self.L_d = parameters[3]; self.R_o = parameters[4]; self.R_i = parameters[5]
         self.iota_b = parameters[6]; self.delta_alpha = parameters[7]
@@ -24,6 +37,10 @@ class bifurcation_free_vertices:
 
 
     def get_inlet_free_vertices(self):
+        """
+        Method for getting the free vertices of the inlet of the bifurcation unit 
+        mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
@@ -40,6 +57,10 @@ class bifurcation_free_vertices:
         return
     
     def get_inlet_free_edges(self):
+        """
+        Method for getting the free esges of the inlet of the bifurcation unit 
+        mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         mesh_vertices = np.asarray(self.truncated_mesh.vertices)
@@ -54,6 +75,10 @@ class bifurcation_free_vertices:
 
     
     def get_positive_outlet_free_vertices(self):
+        """
+        Method for getting the free vertices of the positive z-axis outlet
+        of the bifurcation unit mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
@@ -70,6 +95,10 @@ class bifurcation_free_vertices:
         return
     
     def get_positive_outlet_free_edges(self):
+        """
+        Method for getting the free edges of the positive z-axis outlet
+        of the bifurcation unit mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         mesh_vertices = np.asarray(self.truncated_mesh.vertices)
@@ -85,6 +114,10 @@ class bifurcation_free_vertices:
         self.positive_outlet_free_edges = positive_outlet_free_edges
     
     def get_negative_outlet_free_vertices(self):
+        """
+        Method for getting the free vertices of the negative z-axis outlet
+        of the bifurcation unit mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         bifurcation_free_vertex_index = np.unique(np.concatenate((numpy_free_edges[:,0], numpy_free_edges[:,1])))
@@ -93,7 +126,6 @@ class bifurcation_free_vertices:
         for ind, val in enumerate(bifurcation_vertices):
             if val[0] > np.abs(self.L_d/10) and val[2] < 0:
                 negative_outlet_free_vertices.append(val)
-                #free_vertex_index.append(bifurcation_free_vertex_index[ind])
             else:
                 pass
         negative_outlet_free_vertices = np.array(negative_outlet_free_vertices)
@@ -101,6 +133,10 @@ class bifurcation_free_vertices:
         return
     
     def get_negative_outlet_free_edges(self):
+        """
+        Method for getting the free edges of the negative z-axis outlet
+        of the bifurcation unit mesh.
+        """
         free_edges = self.truncated_mesh.get_non_manifold_edges(allow_boundary_edges = False)
         numpy_free_edges = np.asarray(free_edges)
         mesh_vertices = np.asarray(self.truncated_mesh.vertices)
@@ -116,6 +152,9 @@ class bifurcation_free_vertices:
         self.negative_outlet_free_edges = negative_outlet_free_edges
     
     def rotate_vertices(self, matrix):
+        """
+        Rotates free vertices about origin according to a rotation matrix
+        """
         for ind, vertex in enumerate(self.inlet_free_vertices):
             self.inlet_free_vertices[ind] = matrix @ self.inlet_free_vertices[ind]
         if self.n_cont_outlets == 2:
@@ -130,12 +169,9 @@ class bifurcation_free_vertices:
             pass
 
     def translate_vertices(self, translation_vector):
-        # for ind, vertex in enumerate(self.inlet_free_vertices):
-        #     self.inlet_free_vertices[ind] = self.inlet_free_vertices[ind] + translation_vector
-        # for ind, vertex in enumerate(self.positive_outlet_free_vertices):
-        #     self.positive_outlet_free_vertices[ind] = self.positive_outlet_free_vertices[ind] + translation_vector
-        # for ind, vertex in enumerate(self.negative_outlet_free_vertices):
-        #     self.negative_outlet_free_vertices[ind] = self.negative_outlet_free_vertices[ind] + translation_vector
+        """
+        Translates free vertices according to a translation vector.
+        """
         self.inlet_free_vertices = self.inlet_free_vertices + translation_vector
         if self.n_cont_outlets == 2:
             self.positive_outlet_free_vertices = self.positive_outlet_free_vertices + translation_vector

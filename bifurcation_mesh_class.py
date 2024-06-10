@@ -251,15 +251,19 @@ class bifurcation_mesh:
             vertices = np.asarray(self.truncated_mesh.vertices)
             vertices = np.vstack([vertices, r_neg])
             #capping is done by getting free edges on the outlet and connecting
-            #each of the vertices to a new vertex at the center of the outlet. 
+            #each of the vertices in an edge to a new vertex at the center of the outlet. 
             #The resulting triangle is appended to the mesh
             negative_outlet_free_edges = free_vertices.negative_outlet_free_edges
             new_triangles = np.zeros((negative_outlet_free_edges.shape[0], 3))
             new_triangles[:,0] = negative_outlet_free_edges[:,0]
             new_triangles[:,1] = negative_outlet_free_edges[:,1]
             new_triangles[:,2] = np.shape(vertices)[0] - 1
+            # Append the new triangles to the mesh
             triangles = np.asarray(self.truncated_mesh.triangles)
             triangles = np.vstack([triangles, new_triangles])
+            #Create new open3d mesh object from triangles and vertices. Compute normals
+            #and orient mesh (this is necessary for mesh analysis, though I'm not exactly
+            #sure what is does)
             capped_mesh = o3d.geometry.TriangleMesh()
             capped_mesh.vertices = o3d.utility.Vector3dVector(np.array(vertices))
             capped_mesh.triangles = o3d.utility.Vector3iVector(np.array(triangles))
@@ -267,7 +271,7 @@ class bifurcation_mesh:
             capped_mesh.orient_triangles()
             self.capped_mesh = capped_mesh
         elif self.n_cont_outlets == 0:
-            #cap both outlets
+            #cap both outlets, method same as above
             r_pos = vectors.r_pos
             r_neg = vectors.r_neg
             vertices = np.asarray(self.truncated_mesh.vertices)
@@ -301,7 +305,7 @@ class bifurcation_mesh:
     def cap_initial_inlet(self):
         """
         Method for capping the inlet of the initial bifurcation unit mesh for an overall
-        watertight mesh.
+        watertight mesh. Method is essentially the same as above
         """
         free_vertices = bifurcation_free_vertices(self.parameters, self.truncated_mesh)
         vertices = np.asarray(self.capped_mesh.vertices)
