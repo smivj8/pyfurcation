@@ -23,6 +23,8 @@ tree_parameters = [gen_15, gen_16, gen_17, gen_18]
 axial_rotations = [0, np.pi/2, 0, np.pi/2]
 
 bifurcating_tree = single_pathway_bifurcating_model(tree_parameters, axial_rotations)
+bifurcation_pcd_class = bifurcation_mesh(gen_15)
+bifurction_pcd = bifurcation_pcd_class.pointcloud
 combined_mesh = bifurcating_tree.tree_mesh
 acinus_location = bifurcating_tree.tree_outlet_positions[-1]
 acinus_orientation = bifurcating_tree.tree_outlet_normals[-1]
@@ -37,7 +39,7 @@ print("\nREMOVED SUPLICATED VERTICES AND DEGENERATE TRIANGLES\n")
 outlet_free_vertice = bifurcating_tree.cont_outlet_vertices
 free_vertices_pcd = o3d.geometry.PointCloud()
 free_vertices_pcd.points = o3d.utility.Vector3dVector(np.vstack([outlet_free_vertice]))
-visualization = [combined_mesh, free_vertices_pcd]
+visualization = [combined_mesh, bifurction_pcd]
 combined_mesh.compute_triangle_normals()
 
 o3d.visualization.draw_geometries(visualization, window_name = "Visualization",

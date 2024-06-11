@@ -58,7 +58,7 @@ class bifurcation_mesh:
                 connecting the daughter outlet pathways.
             n_car_rad (int, optional): number of points along the radius of the carina 
                 connecting the daughter outlet pathways.
-            sclar (float, optional): uhhh I honestly don't remember. I'm pretty sure this
+            sclar (float, optional): uhhh I honestly don't remember. This
                 is used to calculate the normal vectors along the bifurcation unit,
                 which might not even be used. Either way, just don't touch this unless you
                 want to mess with a lot of other code
@@ -129,7 +129,9 @@ class bifurcation_mesh:
         x_min = np.min(xyz[:,0])
         xyz[:,0] = xyz[:,0] - x_min - inlet_extension
         #set class global variable to be passed into next function
-        self.xyz = xyz
+
+        
+        self.xyz = xyz        
         return
     
     def generate_o3d_pointcloud(self):
