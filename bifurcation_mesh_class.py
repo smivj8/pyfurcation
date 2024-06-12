@@ -3,7 +3,7 @@ from bifurcation_free_vertices_class import bifurcation_free_vertices
 import numpy as np
 import open3d as o3d
 from utility_functions_bifurcation import *
-from stylianou_geometry_equations import *
+from stylianou_geometry_equations_legacy import *
 
 
 class bifurcation_mesh:
@@ -29,11 +29,19 @@ class bifurcation_mesh:
             parameters (list): bifurcation unit parameters, see github README for more information
         
         """
-        self.R_p = parameters[0]; self.L_p = parameters[1]; self.R_d = parameters[2]
-        self.L_d = parameters[3]; self.R_o = parameters[4]; self.R_i = parameters[5]
-        self.iota_b = parameters[6]; self.delta_alpha = parameters[7]
-        self.iota_gamma = parameters[8]; self.n_cont_outlets = parameters[9]
         self.parameters = parameters
+        self.parent_radius = parameters[0]
+        #for the purpose of generating a bifurcation unit, the parent length is always set to 0 to
+        #prevent doubling the length of a single generation. Then, since the poisson mesh method
+        #rounds the edges slightly, the radius is slightly increased before cropping
+        self.parent_length = 0.05*parameters[3]
+        self.daughter_radius = parameters[2]
+        #Similar to above, the parent length is slightly increased for cropping
+        self.daughter_length = parameters[3] * 1.05
+        self.outer_radius = parameters[4]
+        self.branching_angle = parameters[5]
+        self.carina_angle = parameters[6]
+        self.n_cont_outlets = parameters[7]
         self.generate_parametric_xyz()
         self.generate_o3d_pointcloud()
         self.generate_o3d_mesh() 
@@ -70,10 +78,10 @@ class bifurcation_mesh:
         outlet_extension = 1.05*self.L_d
         #See [2] or README for description of these variables. Basically creating the
         #parameterization variables for construction of the pointcloud
-        carina_parameters = [self.R_p, self.R_d, self.R_o, self.R_i, self.iota_b]
+        carina_parameters = [self.R_p, self.R_d, self.R_o, self.R_i, self.branching_angle]
         phi_s_pos_min = np.arctan(-1*inlet_extension/self.R_o)
-        eta = np.tan(self.iota_gamma - self.iota_b)
-        phi_s_pos_max = self.iota_b + np.arctan(eta + (outlet_extension/self.R_o))
+        eta = np.tan(self.iota_gamma - self.branching_angle)
+        phi_s_pos_max = self.branching_angle + np.arctan(eta + (outlet_extension/self.R_o))
         phi_s_pos = np.linspace(phi_s_pos_min, phi_s_pos_max, n_streamline)
         phi_c = np.linspace(-1*np.pi/2, 3*np.pi/2, n_circ)
         phi_s_carina_max = self.iota_gamma
@@ -189,14 +197,14 @@ class bifurcation_mesh:
         #rotate mesh and do the first outlet mesh crop. The clean crop
         #function ONLY works along the principle x-axis, so the entire mesh must be
         #rotated such that the outlet flow plane is normal to the x-axis.
-        cropped_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+        cropped_mesh.rotate((rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
         cropped_mesh = clean_crop_x(cropped_mesh, max_x = hypot_max, max_slice = True)
         #rotate mesh (twice) and crop the second outlet mesh. 
-        cropped_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
-        cropped_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+        cropped_mesh.rotate((rotation_matrix_about_y(-1*self.branching_angle)), center = np.zeros(3))
+        cropped_mesh.rotate((rotation_matrix_about_y(-1*self.branching_angle)), center = np.zeros(3))
         cropped_mesh = clean_crop_x(cropped_mesh, max_x = hypot_max, max_slice = True)
         #return mesh to original orientation
-        cropped_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+        cropped_mesh.rotate((rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
         self.cropped_mesh = cropped_mesh
         return
     
@@ -221,17 +229,17 @@ class bifurcation_mesh:
         if self.n_cont_outlets == 1:
             #Truncate ONLY positive z outlet for continuation outlet. other outlet will be capped.
             #Crop method is same as above.
-            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
             truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
-            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.branching_angle)), center = np.zeros(3))
         elif self.n_cont_outlets == 2:
             #Truncate both outlets for continuation.
-            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
             truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
-            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
-            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.branching_angle)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(-1*self.branching_angle)), center = np.zeros(3))
             truncated_mesh = clean_crop_x(truncated_mesh, max_x = truncation_distance, max_slice = True)
-            truncated_mesh.rotate((rotation_matrix_about_y(self.iota_b)), center = np.zeros(3))
+            truncated_mesh.rotate((rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
         else:
             #Truncate neither outlet, both will be capped off.
             pass

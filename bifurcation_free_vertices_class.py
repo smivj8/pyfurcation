@@ -1,7 +1,7 @@
 import numpy as np
 import open3d as o3d
 from utility_functions_bifurcation import *
-from stylianou_geometry_equations import *
+from stylianou_geometry_equations_legacy import *
 
 class bifurcation_free_vertices:
 

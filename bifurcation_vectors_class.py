@@ -1,4 +1,4 @@
-from stylianou_geometry_equations import *
+from stylianou_geometry_equations_legacy import *
 import numpy as np
 import open3d as o3d
 

@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-from stylianou_geometry_equations import r_positive
+from stylianou_geometry_equations_legacy import r_positive
 
 def sliceplane(mesh, axis, value, direction):
     # axis can be 0,1,2 (which corresponds to x,y,z)
@@ -123,8 +123,8 @@ def clean_crop_x(mesh, min_x = None, max_x = None, min_slice = False, max_slice 
 
 
 def rotation_matrix_about_y(theta):
-    #If anyone ever reads this source code, I accidentally had a fucking 1 
-    #instead of a zero in the last row of this 
+    #If anyone ever reads this source code, I accidentally had a fucking 1
+    #instead of a zero in the last row of this that took me an hour to find
     R_y = np.array([[np.cos(theta),      0, np.sin(theta)],
                     [0,                  1, 0            ],
                     [-1* np.sin(theta), 0, np.cos(theta)]])
