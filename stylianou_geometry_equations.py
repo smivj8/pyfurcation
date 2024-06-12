@@ -239,7 +239,7 @@ def get_angle_phi_gamma(parameters):
     outer_radius = parameters[4]
     branching_angle = parameters[5]
     # Calculate PHI_GAMMA
-    value_1 = (1 + ((1.4 * daughter_radius)/outer_radius)) * np.cos(branching_angle)
+    value_1 = (1 + ((1.4 * daughter_radius)/outer_radius)) * (1/np.tan(branching_angle))
     value_2 = 1 / np.sin(branching_angle)
     delta = np.arctan(value_1 - value_2)
     phi_gamma = delta + branching_angle
@@ -303,7 +303,6 @@ def get_phi_c_pos_min(phi_s, parameters):
     phi_gamma = get_angle_phi_gamma(parameters)
     #define piecewise function (A.19)
     if phi_s < 0:
-        # 
         phi_c_pos_min = -np.pi/2
     elif phi_s >= 0 and phi_s <= branching_angle:
         numerator = b + (a * (parent_length + outer_radius * np.sin(phi_s))) - (outer_radius * (1-np.cos(phi_s)))
@@ -326,7 +325,7 @@ def get_phi_c_pos_min(phi_s, parameters):
         assert False
     return phi_c_pos_min
 
-def get_phi_c_pos_max(phi_s, parameters):
+def get_phi_c_pos_max(phi_c_pos_min):
     """
     Calculate phi_c_pos_max from phi_c_pos_min according to Equation (A.7).
 
@@ -335,24 +334,20 @@ def get_phi_c_pos_max(phi_s, parameters):
 
         parameters (list): parameters of bifurcation unit, see docstring
     """
-    phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
     phi_c_pos_max = np.pi - phi_c_pos_min #(A.7)
     return phi_c_pos_max
 
-def get_phi_c_neg_min(phi_s, parameters):
+def get_phi_c_neg_min(phi_c_pos_min):
     """
     Calculate phi_c_neg_min from phi_c_pos_min according to Equation (A.8).
 
     Args:
-        phi_s (float): streamline parameteric angle, in radians
-
-        parameters (list): parameters of bifurcation unit, see docstring
+        phi_c_cos_min (float) 
     """
-    phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
     phi_c_neg_min = phi_c_pos_min + np.pi #(A.8)
     return phi_c_neg_min
 
-def get_phi_c_neg_max(phi_s, parameters):
+def get_phi_c_neg_max(phi_c_pos_min):
     """
     Calculate phi_c_pos_max from phi_c_pos_min according to Equation (A.9).
 
@@ -361,7 +356,7 @@ def get_phi_c_neg_max(phi_s, parameters):
 
         parameters (list): parameters of bifurcation unit, see docstring
     """
-    phi_c_pos_max = get_phi_c_pos_max(phi_s, parameters)
+    phi_c_pos_max = np.pi - phi_c_pos_min
     phi_c_neg_max = phi_c_pos_max + np.pi #(A.9)
     return phi_c_neg_max
 
@@ -581,7 +576,7 @@ def get_r_parent(phi_s, phi_c, parameters):
     #Calculate minimum and maximum angle values
     phi_s_min = get_phi_s_min(parameters)
     phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
-    phi_c_pos_max = get_phi_c_pos_max(phi_s, parameters)
+    phi_c_pos_max = get_phi_c_pos_max(phi_c_pos_min)
     #Check here that phi_c is in range, instead of in every condition
     assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
     #construct the piecewise equation (A.15), ensurung phi_s is in range
@@ -613,7 +608,7 @@ def get_r_positive(phi_s, phi_c, parameters):
     #Calculate minimum and maximum angle values
     phi_s_max = get_phi_s_max(parameters)
     phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
-    phi_c_pos_max = get_phi_c_pos_max(phi_s, parameters)
+    phi_c_pos_max = get_phi_c_pos_max(phi_c_pos_min)
     #Check here that phi_c is in range, instead of in every condition
     assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
     #construct the piecewise equation (A.15), ensurung phi_s is in range
@@ -646,15 +641,16 @@ def get_r_negative(phi_s, phi_c, parameters):
     branching_angle = parameters[5]
     #Calculate minimum and maximum angle values
     phi_s_max = get_phi_s_max(parameters)
-    phi_c_neg_min = get_phi_c_neg_min(phi_s, parameters)
-    phi_c_neg_max = get_phi_c_neg_max(phi_s, parameters)
+    phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
+    phi_c_neg_min = get_phi_c_neg_min(phi_c_pos_min)
+    phi_c_neg_max = get_phi_c_neg_max(phi_c_pos_min)
     #Check here that phi_c is in range, instead of in every condition
     assert (phi_c >= phi_c_neg_min and phi_c <= phi_c_neg_max)
     #construct the piecewise equation (A.15), ensurung phi_s is in range
     if phi_s >= 0 and phi_s <= branching_angle:
-        r_negative = get_merging_pipe_positive_z(phi_s, phi_c, parameters)
+        r_negative = get_merging_pipe_negative_z(phi_s, phi_c, parameters)
     elif phi_s > branching_angle and phi_s <= phi_s_max:
-        r_negative = get_daughter_pipe_positive_z(phi_s, phi_c, parameters)
+        r_negative = get_daughter_pipe_negative_z(phi_s, phi_c, parameters)
     else:
         print("Error: Could not evaluate r_positive given phi_s. Printing Error log... \n")
         print(f"phi_s value: {phi_s}")
@@ -663,6 +659,7 @@ def get_r_negative(phi_s, phi_c, parameters):
 
     return r_negative
 
+#TODO get parent and branching normals????
 
 ####################################################################################################
 #                                                                                                  #
@@ -789,6 +786,15 @@ def get_local_carina_radius_and_angles(phi_s, parameters):
         phi_s (float): streamline parameteric angle, in radians
 
         parameters (list): parameters of bifurcation unit, see docstring
+
+    Returns: 
+        carina_radius (float): local radius of the carina at phi_s
+
+        carina_angle (float): local range of the carina angle
+
+        sin_theta (float): value necessary for the construction of the carina
+
+        cos_theta (float): value necesarry for the construction of the carina
     """
     #Get necessary position vectors
     position_lambda, position_kappa, position_mu, position_nu, _ = \
