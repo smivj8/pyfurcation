@@ -18,11 +18,8 @@ axial_rotations = [0, np.pi/2, 0, np.pi/2]
 bifurcating_tree = single_pathway_bifurcating_model(tree_parameters, axial_rotations)
 combined_mesh = bifurcating_tree.tree_mesh
 
-print("\nDONE GENERATING MESH\n")
-
 combined_mesh.remove_duplicated_vertices()
 combined_mesh.remove_degenerate_triangles()
-print("\nREMOVED SUPLICATED VERTICES AND DEGENERATE TRIANGLES\n")
 
 visualization = [combined_mesh]
 combined_mesh.compute_triangle_normals()

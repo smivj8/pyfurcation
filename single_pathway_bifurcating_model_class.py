@@ -1,4 +1,5 @@
 import numpy as np
+from time import time
 from bifurcation_unit_class import bifurcation_unit
 from bifurcation_vectors_class import bifurcation_vectors
 from utility_functions_bifurcation import *
@@ -36,12 +37,17 @@ class single_pathway_bifurcating_model:
 
     def generate_single_pathway_bifurcating_tree(self):
         #Initialize mesh and outlet vertices
+        print("\nGenerating Bifurcation Unit, GENERATION 0...\n")
+        initial_time = time()
         bifurcation_unit_gen_0 = bifurcation_unit(self.tree_parameters[0], True)
         tree_mesh = bifurcation_unit_gen_0.bifurcation_unit_mesh
         cont_outlet_vertices = bifurcation_unit_gen_0.positive_outlet_free_vertices
+        print(f"DONE.\nGeneration Time: {time() - initial_time}\nTotal Time: {time() - initial_time}\n")
         #Generate rest of tree
         for k in range(1, self.n_generations):
             #initialize bifurcation unit and transform
+            print(f"\nGenerating Bifurcation Unit, GENERATION {k}...\n")
+            time_gen_initial = time()
             bifurcation_unit_gen_k = bifurcation_unit(self.tree_parameters[k], False)
             R1 = unit_vector_match_rotation(np.array([1,0,0]), self.tree_outlet_normals[k-1])
             R2 = rotation_about_vector_u(self.tree_outlet_normals[k-1], self.axial_rotation_angles[k])
@@ -52,5 +58,7 @@ class single_pathway_bifurcating_model:
             junction_mesh = create_junction_mesh(cont_outlet_vertices, unit_inlet_vertices, self.tree_outlet_normals[k-1], self.tree_outlet_positions[k-1])
             tree_mesh += (bifurcation_unit_gen_k.bifurcation_unit_mesh + junction_mesh)
             cont_outlet_vertices = bifurcation_unit_gen_k.positive_outlet_free_vertices
+            print(f"DONE.\nGeneration Time: {time() - time_gen_initial}\nTotal Time: {time() - initial_time}\n")
+        print(f"Done Generating Mesh... Total Time {time() - initial_time}")
         self.tree_mesh = tree_mesh
         self.cont_outlet_vertices = cont_outlet_vertices
