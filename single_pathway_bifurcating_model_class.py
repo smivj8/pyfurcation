@@ -42,7 +42,7 @@ class single_pathway_bifurcating_model:
         bifurcation_unit_gen_0 = bifurcation_unit(self.tree_parameters[0], True)
         tree_mesh = bifurcation_unit_gen_0.bifurcation_unit_mesh
         cont_outlet_vertices = bifurcation_unit_gen_0.positive_outlet_free_vertices
-        print(f"DONE.\nGeneration Time: {time() - initial_time}\nTotal Time: {time() - initial_time}\n")
+        print(f"DONE.\nGeneration Time: {time() - initial_time}\nTotal Time: {time() - initial_time}\n\n\n")
         #Generate rest of tree
         for k in range(1, self.n_generations):
             #initialize bifurcation unit and transform
@@ -58,7 +58,7 @@ class single_pathway_bifurcating_model:
             junction_mesh = create_junction_mesh(cont_outlet_vertices, unit_inlet_vertices, self.tree_outlet_normals[k-1], self.tree_outlet_positions[k-1])
             tree_mesh += (bifurcation_unit_gen_k.bifurcation_unit_mesh + junction_mesh)
             cont_outlet_vertices = bifurcation_unit_gen_k.positive_outlet_free_vertices
-            print(f"DONE.\nGeneration Time: {time() - time_gen_initial}\nTotal Time: {time() - initial_time}\n")
+            print(f"DONE.\nGeneration Time: {time() - time_gen_initial}\nTotal Time: {time() - initial_time}\n\n\n")
         print(f"Done Generating Mesh... Total Time {time() - initial_time}")
         self.tree_mesh = tree_mesh
         self.cont_outlet_vertices = cont_outlet_vertices
