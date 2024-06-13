@@ -5,7 +5,7 @@ from bifurcation_mesh_class import bifurcation_mesh
 from bifurcation_free_vertices_class import bifurcation_free_vertices
 from single_pathway_bifurcating_model_class import single_pathway_bifurcating_model
 from bifurcation_unit_class import bifurcation_unit
-from stylianou_geometry_equations import R_i
+from stylianou_geometry_equations_legacy import R_i
 from utility_functions_bifurcation import *
 
 iota_b_test = 35*np.pi/180

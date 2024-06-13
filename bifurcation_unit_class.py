@@ -6,20 +6,30 @@ from bifurcation_free_vertices_class import bifurcation_free_vertices
 
 class bifurcation_unit:
 
-    def __init__(self, parameters):
-        self.R_p = parameters[0]; self.L_p = parameters[1]; self.R_d = parameters[2]
-        self.L_d = parameters[3]; self.R_o = parameters[4]; self.R_i = parameters[5]
-        self.iota_b = parameters[6]; self.delta_alpha = parameters[7]
-        self.iota_gamma = parameters[8]; self.n_cont_outlets = parameters[9]
+    def __init__(self, parameters, initial_bool):
         self.parameters = parameters
-        self.generate_bifurcation_unit()
-        self.generate_initial_bifurcation_unit()
+        self.parent_radius = parameters[0]
+        #for the purpose of generating a bifurcation unit, the parent length is always set to 0 to
+        #prevent doubling the length of a single generation. Then, since the poisson mesh method
+        #rounds the edges slightly, the radius is slightly increased before cropping
+        self.parent_length = parameters[3] * 0.05
+        self.daughter_radius = parameters[2]
+        #Similar to above, the parent length is slightly increased for cropping
+        self.daughter_length = parameters[3] * 1.05
+        self.outer_radius = parameters[4]
+        self.branching_angle = parameters[5]
+        self.carina_angle = parameters[6]
+        self.n_cont_outlets = parameters[7]
+        if not initial_bool:
+            self.generate_bifurcation_unit()
+        else:
+            self.generate_initial_bifurcation_unit()
     
     def generate_bifurcation_unit(self):
         #Create Mesh
         mesh_class = bifurcation_mesh(self.parameters)
         self.bifurcation_unit_mesh = mesh_class.capped_mesh
-        #Get Vectors 
+        #Get Vectors
         vector_class = bifurcation_vectors(self.parameters)
         self.r_pos = vector_class.r_pos
         self.r_neg = vector_class.r_neg
@@ -38,7 +48,7 @@ class bifurcation_unit:
     def generate_initial_bifurcation_unit(self):
         #Create Mesh
         mesh_class = bifurcation_mesh(self.parameters)
-        self.initial_bifurcation_unit_mesh = mesh_class.initial_capped_mesh
+        self.bifurcation_unit_mesh = mesh_class.initial_capped_mesh
         #Get Vectors 
         vector_class = bifurcation_vectors(self.parameters)
         self.r_pos = vector_class.r_pos

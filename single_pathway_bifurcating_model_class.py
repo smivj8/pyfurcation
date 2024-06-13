@@ -36,23 +36,19 @@ class single_pathway_bifurcating_model:
 
     def generate_single_pathway_bifurcating_tree(self):
         #Initialize mesh and outlet vertices
-        #TODO: Figure out how to implement the capping of the initial mesh
-        bifurcation_unit_gen_0 = bifurcation_unit(self.tree_parameters[0])
-        tree_mesh = bifurcation_unit_gen_0.initial_bifurcation_unit_mesh
+        bifurcation_unit_gen_0 = bifurcation_unit(self.tree_parameters[0], True)
+        tree_mesh = bifurcation_unit_gen_0.bifurcation_unit_mesh
         cont_outlet_vertices = bifurcation_unit_gen_0.positive_outlet_free_vertices
         #Generate rest of tree
         for k in range(1, self.n_generations):
             #initialize bifurcation unit and transform
-            bifurcation_unit_gen_k = bifurcation_unit(self.tree_parameters[k])
+            bifurcation_unit_gen_k = bifurcation_unit(self.tree_parameters[k], False)
             R1 = unit_vector_match_rotation(np.array([1,0,0]), self.tree_outlet_normals[k-1])
             R2 = rotation_about_vector_u(self.tree_outlet_normals[k-1], self.axial_rotation_angles[k])
             bifurcation_unit_gen_k.rotate_bifurcation_unit(R2@R1)
             bifurcation_unit_gen_k.translate_bifurcation_unit(self.tree_outlet_positions[k-1])
             #get inlet vertices and combine 
-            unit_inlet_vertices = bifurcation_unit_gen_k.inlet_free_vertices
-            #TODO Everything BUT the junction meshing is now working. It works for the first junction but not afterwards...
-            #   NOTE: It is NOT fixed by setting the axial rotations to zero, so the issue is somewhere else, in the ordering
-            #         vertices function maybe?    
+            unit_inlet_vertices = bifurcation_unit_gen_k.inlet_free_vertices  
             junction_mesh = create_junction_mesh(cont_outlet_vertices, unit_inlet_vertices, self.tree_outlet_normals[k-1], self.tree_outlet_positions[k-1])
             tree_mesh += (bifurcation_unit_gen_k.bifurcation_unit_mesh + junction_mesh)
             cont_outlet_vertices = bifurcation_unit_gen_k.positive_outlet_free_vertices
