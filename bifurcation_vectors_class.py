@@ -1,6 +1,6 @@
-from stylianou_geometry_equations_legacy import *
 import numpy as np
 import open3d as o3d
+import stylianou_geometry_equations as sge
 
 
 class bifurcation_vectors:
@@ -10,23 +10,32 @@ class bifurcation_vectors:
         A class for the representation and manipulation of the position and 
         normal vectors of the positive-z and negative-z outlets of a bifurcation
         unit from:
+        
         [1] T. Heistracher and W. Hofmann, “Physiologically realistic models of bronchial airway 
         bifurcations,” Journal of Aerosol Science, vol. 26, no. 3, pp. 497–509, Apr. 1995, 
         doi: 10.1016/0021-8502(94)00113-D.
 
-        [2] F. S. Stylianou, J. Sznitman, and S. C. Kassinos, “Direct numerical simulation of particle laden 
-        flow in a human airway bifurcation model,” International Journal of Heat and Fluid Flow, vol. 61, pp. 
-        677–710, Oct. 2016, doi: 10.1016/j.ijheatfluidflow.2016.07.013.
+        [2] F. S. Stylianou, J. Sznitman, and S. C. Kassinos, “Direct numerical simulation of
+        particle laden flow in a human airway bifurcation model,” International Journal of Heat and 
+        Fluid Flow, vol. 61, pp. 677–710, Oct. 2016, doi: 10.1016/j.ijheatfluidflow.2016.07.013.
 
         Args:
             parameters (list): bifurcation unit parameters, see github README for more information
 
         """
-        self.R_p = parameters[0]; self.L_p = parameters[1]; self.R_d = parameters[2]
-        self.L_d = parameters[3]; self.R_o = parameters[4]; self.R_i = parameters[5]
-        self.iota_b = parameters[6]; self.delta_alpha = parameters[7]
-        self.iota_gamma = parameters[8]; self.n_cont_outlets = parameters[9]
         self.parameters = parameters
+        self.parent_radius = parameters[0]
+        #for the purpose of generating a bifurcation unit, the parent length is always set to 0 to
+        #prevent doubling the length of a single generation. Then, since the poisson mesh method
+        #rounds the edges slightly, the radius is slightly increased before cropping
+        self.parent_length = parameters[3] * 0.05
+        self.daughter_radius = parameters[2]
+        #Similar to above, the parent length is slightly increased for cropping
+        self.daughter_length = parameters[3] * 1.05
+        self.outer_radius = parameters[4]
+        self.branching_angle = parameters[5]
+        self.carina_angle = parameters[6]
+        self.n_cont_outlets = parameters[7]
         self.calculate_outlet_normals()
         self.calculate_outlet_positions()
 
@@ -39,17 +48,12 @@ class bifurcation_vectors:
 
         """
         #See sources above for full description of variables
-        eta = np.tan(self.iota_gamma - self.iota_b)
-        phi_s_max = self.iota_b + np.arctan(eta + (self.L_d/self.R_o))
+        phi_s_max = sge.get_phi_s_max(self.parameters)
         #Dummy functions necessary to plug into position vector functions. Legacy
         #artifact of me having terrible coding practices...
-        def phi_c_pos_min_lambda(phi_s, parameters, scalar):
-            return -1*np.pi/2
-        def phi_c_pos_max_lambda(phi_s, parameters, scalar):
-            return 3*np.pi/2
-        r0, _ =  r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, self.parameters, 1.1)
-        rpi, _ = r_positive(phi_s_max, np.pi, phi_c_pos_min_lambda, phi_c_pos_max_lambda, self.parameters, 1.1)
-        r_pos = ((r0 + rpi)/2)
+        r0 = sge.get_r_positive(phi_s_max, 0, self.parameters)
+        rpi = sge.get_r_positive(phi_s_max, np.pi, self.parameters)
+        r_pos = (r0 + rpi)/2
         r_neg = np.zeros(3)
         r_neg[0] = r_pos[0]
         r_neg[1] = r_pos[1]
@@ -65,17 +69,10 @@ class bifurcation_vectors:
         returns unit normal vectors using equations from [2].
 
         """
-        eta = np.tan(self.iota_gamma - self.iota_b)
-        phi_s_max = self.iota_b + np.arctan(eta + (self.L_d/self.R_o))
-        #Dummy functions necessary to plug into position vector functions. Legacy
-        #artifact of me having terrible coding practices...
-        def phi_c_pos_min_lambda(phi_s, parameters, scalar):
-            return -1*np.pi/2
-        def phi_c_pos_max_lambda(phi_s, parameters, scalar):
-            return 3*np.pi/2
-        r_C, _ = r_positive(self.iota_b, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, self.parameters, 1.1)
-        r_F, _ = r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, self.parameters, 1.1)
-        n_pos = ((r_F - r_C)/np.linalg.norm((r_F - r_C)))
+        phi_s_max = sge.get_phi_s_max(self.parameters)
+        r_c = sge.get_r_positive(self.branching_angle, 0, self.parameters)
+        r_f = sge.get_r_positive(phi_s_max, 0, self.parameters)
+        n_pos = ((r_f - r_c)/np.linalg.norm((r_f - r_c)))
         n_neg = np.zeros(3)
         n_neg[0] = n_pos[0]
         n_neg[1] = n_pos[1]
@@ -83,7 +80,7 @@ class bifurcation_vectors:
         self.n_pos = n_pos
         self.n_neg = n_neg
         return
-    
+
     def rotate_vector(self, matrix):
         """
         Rotate all vectors according to a rotation matrix. Technically

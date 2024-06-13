@@ -308,12 +308,12 @@ def get_phi_c_pos_min(phi_s, parameters):
         numerator = b + (a * (parent_length + outer_radius * np.sin(phi_s))) - (outer_radius * (1-np.cos(phi_s)))
         denominator = (np.cos(phi_s) + a * np.sin(phi_s)) * transition_radius(phi_s, parameters)
         phi_c_pos_min = np.arcsin(numerator/denominator)
-    elif phi_s > branching_angle and phi_s <= phi_gamma:
+    elif phi_s > branching_angle and phi_s < phi_gamma:
         numerator_1 = b + (a * (parent_length + outer_radius * np.sin(branching_angle))) - (outer_radius * (1-np.cos(branching_angle)))
         numerator_2 = (a * np.cos(branching_angle) - np.sin(branching_angle)) * outer_radius * np.tan(phi_s - branching_angle)
         denominator = (np.cos(branching_angle) + a * np.sin(branching_angle)) * daughter_radius
         phi_c_pos_min = np.arcsin((numerator_1 + numerator_2)/(denominator))
-    elif phi_s > phi_gamma:
+    elif phi_s >= phi_gamma:
         phi_c_pos_min = -np.pi/2
     else:
         #Sanity check/Error log in case of debugging
@@ -413,7 +413,7 @@ def get_phi_s_max(parameters):
 #                                                                                                  #
 ####################################################################################################
 
-def get_parent_pipe_normal(phi_s, phi_c, parameters):
+def get_parent_pipe_normal(parent_pipe_position):
     """
     Construct the unit normal vector of the parent pipe section at parameteric
     location (phi_s, phi_c) for given parameters.
@@ -425,16 +425,14 @@ def get_parent_pipe_normal(phi_s, phi_c, parameters):
 
         parameters (list): parameters of bifurcation unit, see docstring
     """
-    #Get the xyz value
-    xyz_p = get_parent_pipe(phi_s, phi_c, parameters)
     #calculate unit normal vectors to the pointcloud.
     scalar = 1.1
-    parent_dummy = np.array([xyz_p[0], scalar*xyz_p[1], scalar*xyz_p[2]])
+    parent_dummy = np.array([parent_pipe_position[0], scalar*parent_pipe_position[1], scalar*parent_pipe_position[2]])
     #Create vector and normalize
-    normals_p = (parent_dummy - xyz_p) * (1/np.linalg.norm((parent_dummy - xyz_p)))
+    normals_p = (parent_dummy - parent_pipe_position) * (1/np.linalg.norm((parent_dummy - parent_pipe_position)))
     return normals_p
 
-def get_merging_pipe_positive_z_normal(phi_s, phi_c, parameters):
+def get_merging_pipe_positive_z_normal(merging_pipe_positive_position, phi_s, phi_c, parameters):
     """
     Construct the normal vector of the merging pipe section in the positive-z 
     range at parameteric location (phi_s, phi_c) for given parameters.
@@ -449,8 +447,6 @@ def get_merging_pipe_positive_z_normal(phi_s, phi_c, parameters):
     #Unpack parameters list for any required parameters in this function
     parent_length = parameters[1]
     outer_radius = parameters[4]
-    #Calculate xyz coordinates
-    xyz_m_pos = get_merging_pipe_positive_z(phi_s, phi_c, parameters)
     #Calculate unit vectors normal to the pointcloud
     val = transition_radius(phi_s, parameters) * np.sin(phi_c)
     scalar = 1.1
@@ -459,10 +455,10 @@ def get_merging_pipe_positive_z_normal(phi_s, phi_c, parameters):
     dummy_z_m_pos = outer_radius * (1-np.cos(phi_s)) + (np.cos(phi_s) * val * scalar)
     merge_dummy_pos = np.array([dummy_x_m_pos, dummy_y_m_pos, dummy_z_m_pos])
     #create vector and normalize
-    normals_m_pos = (merge_dummy_pos - xyz_m_pos) * (1/np.linalg.norm(merge_dummy_pos - xyz_m_pos))
+    normals_m_pos = (merge_dummy_pos - merging_pipe_positive_position) * (1/np.linalg.norm(merge_dummy_pos - merging_pipe_positive_position))
     return normals_m_pos
 
-def get_merging_pipe_negative_z_normal(phi_s, phi_c, parameters):
+def get_merging_pipe_negative_z_normal(merging_pipe_negative_position, phi_s, phi_c, parameters):
     """
     Construct the normal vector of the merging pipe section in the negative-z 
     range at parameteric location (phi_s, phi_c) for given parameters.
@@ -477,8 +473,6 @@ def get_merging_pipe_negative_z_normal(phi_s, phi_c, parameters):
     #Unpack parameters list for any required parameters in this function
     parent_length = parameters[1]
     outer_radius = parameters[4]
-    #Calculate xyz coordinates and pack into numpy array
-    xyz_m_neg = get_merging_pipe_negative_z(phi_s, phi_c, parameters)
     #Calculate unit vectors normal to the pointcloud
     val = transition_radius(phi_s, parameters) * np.sin(phi_c)
     scalar = 1.1
@@ -487,10 +481,10 @@ def get_merging_pipe_negative_z_normal(phi_s, phi_c, parameters):
     dummy_z_m_neg = -1 * outer_radius * (1-np.cos(phi_s)) + (np.cos(phi_s) * val * scalar)
     merge_dummy_neg = np.array([dummy_x_m_neg, dummy_y_m_neg, dummy_z_m_neg])
     #create vector and normalize
-    normals_m_neg = (merge_dummy_neg - xyz_m_neg) * (1/np.linalg.norm(merge_dummy_neg - xyz_m_neg))
+    normals_m_neg = (merge_dummy_neg - merging_pipe_negative_position) * (1/np.linalg.norm(merge_dummy_neg - merging_pipe_negative_position))
     return normals_m_neg
 
-def get_daughter_pipe_positive_z_normal(phi_s, phi_c, parameters):
+def get_daughter_pipe_positive_z_normal(daughter_pipe_positive_position, phi_s, phi_c, parameters):
     """
     Construct the normal vector of the daughter pipe section in the positive-z 
     range at parameteric location (phi_s, phi_c) for given parameters.
@@ -505,24 +499,23 @@ def get_daughter_pipe_positive_z_normal(phi_s, phi_c, parameters):
     #Unpack parameters list for any required parameters in this function
     outer_radius = parameters[4]
     branching_angle = parameters[5]
-    #Calculate xyz coordinates
-    xyz_d_pos = get_daughter_pipe_positive_z(phi_s, phi_c, parameters)
     #Calculate unit vectors normal to the pointcloud
     scalar = 1.1
     zeta = outer_radius * np.tan(phi_s - branching_angle) #cartesian transform of phi_s
-    dummy_parameters = parameters
+    # dummy_parameters = list(parameters)
+    dummy_parameters = parameters.copy()
     dummy_parameters[0] = parameters[0] * scalar
     dummy_parameters[2] = parameters[2] * scalar
-    xyz_m_dummy_pos, _ = get_merging_pipe_positive_z(branching_angle, phi_c, dummy_parameters)
+    xyz_m_dummy_pos = get_merging_pipe_positive_z(branching_angle, phi_c, dummy_parameters)
     dummy_x_d_pos = xyz_m_dummy_pos[0] + zeta*np.cos(branching_angle)
     dummy_y_d_pos = xyz_m_dummy_pos[1]
     dummy_z_d_pos = xyz_m_dummy_pos[2] + zeta*np.sin(branching_angle)
     daughter_dummy_pos = np.array([dummy_x_d_pos, dummy_y_d_pos, dummy_z_d_pos])
     #create vector and normalize
-    normals_d_pos = (daughter_dummy_pos - xyz_d_pos) * (1/np.linalg.norm(daughter_dummy_pos - xyz_d_pos))
+    normals_d_pos = (daughter_dummy_pos - daughter_pipe_positive_position) * (1/np.linalg.norm(daughter_dummy_pos - daughter_pipe_positive_position))
     return normals_d_pos
 
-def get_daughter_pipe_negative_z_normal(phi_s, phi_c, parameters):
+def get_daughter_pipe_negative_z_normal(daughter_pipe_negative_position, phi_s, phi_c, parameters):
     """
     Construct the normal vector of the daughter pipe section in the negative-z 
     range at parameteric location (phi_s, phi_c) for given parameters.
@@ -537,21 +530,20 @@ def get_daughter_pipe_negative_z_normal(phi_s, phi_c, parameters):
     #Unpack parameters list for any required parameters in this function
     outer_radius = parameters[4]
     branching_angle = parameters[5]
-    #Calculate xyz coordinates
-    xyz_d_neg = get_daughter_pipe_negative_z(phi_s, phi_c, parameters)
     #Calculate unit vectors normal to the pointcloud
     zeta = outer_radius * np.tan(phi_s - branching_angle) #cartesian transform of phi_s
     scalar = 1.1
-    dummy_parameters = parameters
+    #dummy_parameters = list(parameters)
+    dummy_parameters = parameters.copy()
     dummy_parameters[0] = parameters[0] * scalar
     dummy_parameters[2] = parameters[2] * scalar
-    xyz_m_dummy_neg, _ = get_merging_pipe_negative_z(branching_angle, phi_c, dummy_parameters)
+    xyz_m_dummy_neg  = get_merging_pipe_negative_z(branching_angle, phi_c, dummy_parameters)
     dummy_x_d_neg = xyz_m_dummy_neg[0] + zeta*np.cos(branching_angle)
     dummy_y_d_neg = xyz_m_dummy_neg[1]
     dummy_z_d_neg = xyz_m_dummy_neg[2] - zeta*np.sin(branching_angle)
     daughter_dummy_neg = np.array([dummy_x_d_neg, dummy_y_d_neg, dummy_z_d_neg])
     #create vector and normalize
-    normals_d_neg = (daughter_dummy_neg - xyz_d_neg) * (1/np.linalg.norm(daughter_dummy_neg - xyz_d_neg))
+    normals_d_neg = (daughter_dummy_neg - daughter_pipe_negative_position) * (1/np.linalg.norm(daughter_dummy_neg - daughter_pipe_negative_position))
     return normals_d_neg
 
 ####################################################################################################
@@ -610,7 +602,7 @@ def get_r_positive(phi_s, phi_c, parameters):
     phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
     phi_c_pos_max = get_phi_c_pos_max(phi_c_pos_min)
     #Check here that phi_c is in range, instead of in every condition
-    assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
+    #assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
     #construct the piecewise equation (A.15), ensurung phi_s is in range
     if phi_s >= 0 and phi_s <= branching_angle:
         r_positive = get_merging_pipe_positive_z(phi_s, phi_c, parameters)
@@ -659,7 +651,63 @@ def get_r_negative(phi_s, phi_c, parameters):
 
     return r_negative
 
-#TODO get parent and branching normals????
+def get_positive_z_normals(positive_z_position, phi_s, phi_c, parameters):
+    """
+    Method to get the unit vector normal to the position in the positive z range.
+    This simply combines the two methods above
+    
+    Args:
+        phi_s (float): streamline parameteric angle, in radians
+
+        phi_c (float): circumferential parameteric angle, in radians
+
+        parameters (list): parameters of bifurcation unit, see docstring
+    """
+    #Unpack parameters list for any required parameters in this function
+    branching_angle = parameters[5]
+    #Calculate minimum and maximum angle values
+    phi_s_max = get_phi_s_max(parameters)
+    #construct the piecewise equation (A.15), ensurung phi_s is in range
+    if phi_s >= 0 and phi_s <= branching_angle:
+        normal_positive = get_merging_pipe_positive_z_normal(positive_z_position, phi_s, phi_c, parameters)
+    elif phi_s > branching_angle and phi_s <= phi_s_max:
+        normal_positive = get_daughter_pipe_positive_z_normal(positive_z_position, phi_s, phi_c, parameters)
+    else:
+        print("Error: Could not evaluate r_positive given phi_s. Printing Error log... \n")
+        print(f"phi_s value: {phi_s}")
+        normal_positive = None
+        assert False
+
+    return normal_positive
+
+def get_negative_z_normals(negative_z_position, phi_s, phi_c, parameters):
+    """
+    Method to get the unit vector normal to the position in the positive z range.
+    This simply combines the two methods above
+    
+    Args:
+        phi_s (float): streamline parameteric angle, in radians
+
+        phi_c (float): circumferential parameteric angle, in radians
+
+        parameters (list): parameters of bifurcation unit, see docstring
+    """
+    #Unpack parameters list for any required parameters in this function
+    branching_angle = parameters[5]
+    #Calculate minimum and maximum angle values
+    phi_s_max = get_phi_s_max(parameters)
+    #construct the piecewise equation (A.15), ensurung phi_s is in range
+    if phi_s >= 0 and phi_s <= branching_angle:
+        normal_negative = get_merging_pipe_negative_z_normal(negative_z_position, phi_s, phi_c, parameters)
+    elif phi_s > branching_angle and phi_s <= phi_s_max:
+        normal_negative = get_daughter_pipe_negative_z_normal(negative_z_position, phi_s, phi_c, parameters)
+    else:
+        print("Error: Could not evaluate n_negative given phi_s. Printing Error log... \n")
+        print(f"phi_s value: {phi_s}")
+        normal_negative = None
+        assert False
+
+    return normal_negative
 
 ####################################################################################################
 #                                                                                                  #
@@ -766,9 +814,9 @@ def get_carina_position_and_normal_vectors(phi_s, parameters):
     #get normal vector at position LAMBDA
     _, normal_lambda = transform_carina_unit_vectors(phi_s, phi_c_pos_min, parameters) #(A.26)
     #get position KAPPA
-    position_kappa = position_lambda - ((position_lambda[2]/normal_lambda[2])*normal_lambda) #(A.27)
+    position_kappa = (position_lambda) - ((position_lambda[2]/normal_lambda[2])*normal_lambda) #(A.27)
     #get position MU
-    position_mu = position_lambda - ((position_lambda[1]/normal_lambda[1]) * normal_lambda) #(A.28)
+    position_mu = (position_lambda) - ((position_lambda[1]/normal_lambda[1]) * normal_lambda) #(A.28)
     #get position NU
     position_nu = np.array([position_mu[0], 0, 0]) #(A.29)
     return position_lambda, position_kappa, position_mu, position_nu, normal_lambda
@@ -788,9 +836,9 @@ def get_local_carina_radius_and_angles(phi_s, parameters):
         parameters (list): parameters of bifurcation unit, see docstring
 
     Returns: 
-        carina_radius (float): local radius of the carina at phi_s
+        carina_local_radius (float): local radius of the carina at phi_s
 
-        carina_angle (float): local range of the carina angle
+        carina_local_angle (float): local range of the carina angle
 
         sin_theta (float): value necessary for the construction of the carina
 
@@ -800,13 +848,17 @@ def get_local_carina_radius_and_angles(phi_s, parameters):
     position_lambda, position_kappa, position_mu, position_nu, _ = \
                                     get_carina_position_and_normal_vectors(phi_s, parameters)
     #Calculate the carina radius
-    carina_radius = np.linalg.norm((position_kappa - position_lambda)) #(A.30)
-    #Calculate the carina angle
-    carina_angle = np.arctan(position_mu[2]/(np.linalg.norm((position_kappa - position_nu))))#(A.31)
-    #Calculate sin(theta) and cos(theta)
-    sin_theta = (position_kappa[0] - position_nu[0])/(np.linalg.norm((position_kappa - position_nu))) #(A.32)
-    cos_theta = (position_kappa[1])/(np.linalg.norm((position_kappa - position_nu))) #(A.33)
-    return carina_radius, carina_angle, sin_theta, cos_theta
+    carina_local_radius = np.linalg.norm((position_kappa - position_lambda)) #(A.30)
+    #Calculate the carina angle, sin_theta, and cos_theta
+    if (np.linalg.norm((position_kappa - position_nu))) <= 1E-10:
+        carina_local_angle = parameters[6]/2
+        sin_theta = 0
+        cos_theta = -1
+    else:
+        carina_local_angle = np.arctan(position_mu[2]/(np.linalg.norm((position_kappa - position_nu))))#(A.31)
+        sin_theta = (position_kappa[0] - position_nu[0])/(np.linalg.norm((position_kappa - position_nu))) #(A.32)
+        cos_theta = (position_kappa[1])/(np.linalg.norm((position_kappa - position_nu))) #(A.33)
+    return carina_local_radius, carina_local_angle, sin_theta, cos_theta
 
 
 ####################################################################################################
@@ -831,21 +883,22 @@ def get_carina_position(phi_s, psi, parameters):
     """
     #Get necessary position vectors, carina radius, and theta angles
     _, position_kappa, _, _, _ = get_carina_position_and_normal_vectors(phi_s, parameters)
-    carina_radius, carina_angle, sin_theta, cos_theta = get_local_carina_radius_and_angles(phi_s, parameters)
+    carina_local_radius, carina_local_angle, sin_theta, cos_theta = \
+        get_local_carina_radius_and_angles(phi_s, parameters)
     #Check that phi_s and psi are within range
     phi_gamma = get_angle_phi_gamma(parameters)
     assert (phi_s >= 0 and phi_s <= phi_gamma)
-    assert (psi >= -1*carina_angle and psi <= carina_angle)
+    assert (psi >= -1*carina_local_angle and psi <= carina_local_angle)
     #calculate the xyz position of the carina point
-    x_carina_up = position_kappa[0] - (carina_radius * np.cos(psi) * sin_theta)
-    y_carina_up = position_kappa[1] - (carina_radius * np.cos(psi) * cos_theta)
-    z_carina_up = carina_radius * np.sin(psi)
+    x_carina_up = position_kappa[0] - (carina_local_radius * np.cos(psi) * sin_theta)
+    y_carina_up = position_kappa[1] - (carina_local_radius * np.cos(psi) * cos_theta)
+    z_carina_up = carina_local_radius * np.sin(psi)
     r_carina_up = np.array([x_carina_up, y_carina_up, z_carina_up])
     r_carina_down = np.array([x_carina_up, -1*y_carina_up, z_carina_up])
     return r_carina_up, r_carina_down
 
 
-def get_carina_normal(phi_s, psi, parameters):
+def get_carina_normal(carina_position, phi_s, parameters):
     """
     Construct the unit normal vector of the positive-y carina at parameteric
     location (phi_s, psi) for given parameters.
@@ -860,7 +913,6 @@ def get_carina_normal(phi_s, psi, parameters):
     #get position KAPPA and normal LAMBDA vectors
     _, position_kappa, _, _, normal_lambda = get_carina_position_and_normal_vectors(phi_s, parameters)
     #get r_carina_up
-    r_carina_up, _ = get_carina_position(phi_s, psi, parameters)
-    normal_carina_up = -1*(position_kappa - r_carina_up) / np.linalg.norm((position_kappa - r_carina_up))*np.sign(normal_lambda[2])
+    normal_carina_up = -1*(position_kappa - carina_position) / np.linalg.norm((position_kappa - carina_position))*np.sign(normal_lambda[2])
     normal_carina_down = np.array([normal_carina_up[0], -1*normal_carina_up[1], normal_carina_up[2]])
     return normal_carina_up, normal_carina_down

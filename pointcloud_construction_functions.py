@@ -68,7 +68,7 @@ def get_pipe_section_pointcloud_sizes(parameters, n_streamline, n_circ):
         branching_pointcloud_size += n_circ_phi
     return parent_pointcloud_size, branching_pointcloud_size
 
-def construct_pipe_section_pointcloud(parameters, n_streamline = 120, n_circ = 100):
+def construct_pipe_section_pointcloud(parameters, n_streamline, n_circ):
     """
     A method to iterate through the phi_s and phi_c ranges to construct a high
     density pointcloud of the parent and branching pipe sections.
@@ -77,17 +77,20 @@ def construct_pipe_section_pointcloud(parameters, n_streamline = 120, n_circ = 1
         parameters (list): parameters of bifurcation unit, see docstring
 
         n_streamline (int, optional): number of points along length of bifurcation
-            unit, default 120.
+            unit, default 100.
 
         n_circ (int, optional): number of points around the circumference of the 
-            bifurcation unit, default 100.
+            bifurcation unit, default 80.
     """
     #get the pointcloud section sizes 
     n_parent, n_branching= get_pipe_section_pointcloud_sizes(parameters, n_streamline, n_circ)
     #Initialize pointclouds
     parent_pointcloud = np.zeros((n_parent, 3))
+    parent_normals = np.zeros((n_parent, 3))
     branching_pos_pointcloud = np.zeros((n_branching, 3))
+    branching_pos_normals = np.zeros((n_branching, 3))
     branching_neg_pointcloud = np.zeros((n_branching, 3))
+    branching_neg_normals = np.zeros((n_branching, 3))
     #get phi_s range
     phi_s_min = sge.get_phi_s_min(parameters)
     phi_s_max = sge.get_phi_s_max(parameters)
@@ -102,6 +105,8 @@ def construct_pipe_section_pointcloud(parameters, n_streamline = 120, n_circ = 1
             for k in range(n_circ):
                 parent_pointcloud[pipe_section_index] = \
                     sge.get_r_parent(phi_s_linspace[j], phi_c_pos_linspace[k], parameters)
+                parent_normals[pipe_section_index] = \
+                    sge.get_parent_pipe_normal(parent_pointcloud[pipe_section_index])
                 pipe_section_index += 1
         else: #populate the positive and negative branching pipe sections!
             #positive range
@@ -116,16 +121,24 @@ def construct_pipe_section_pointcloud(parameters, n_streamline = 120, n_circ = 1
             phi_c_pos_linspace = np.linspace(phi_c_pos_min, phi_c_pos_max, n_circ_phi_s)
             phi_c_neg_linspace = np.linspace(phi_c_neg_min, phi_c_neg_max, n_circ_phi_s)
             for k in range(n_circ_phi_s):
+                phi_s = phi_s_linspace[j]
+                phi_c_pos = phi_c_pos_linspace[k]
+                phi_c_neg = phi_c_neg_linspace[k]
                 branching_pos_pointcloud[pipe_section_index - n_parent] = \
                     sge.get_r_positive(phi_s_linspace[j], phi_c_pos_linspace[k], parameters)
                 branching_neg_pointcloud[pipe_section_index - n_parent] = \
                     sge.get_r_negative(phi_s_linspace[j], phi_c_neg_linspace[k], parameters)
+                branching_pos_normals[pipe_section_index - n_parent] = \
+                    sge.get_positive_z_normals(branching_pos_pointcloud[pipe_section_index - n_parent], phi_s_linspace[j], phi_c_pos_linspace[k], parameters)
+                branching_neg_normals[pipe_section_index - n_parent] = \
+                    sge.get_negative_z_normals(branching_neg_pointcloud[pipe_section_index - n_parent], phi_s_linspace[j], phi_c_neg_linspace[k], parameters)
                 pipe_section_index += 1
     #Combine pointclouds into single numpy array
-    pipe_section_pointcloud = np.concatenate((parent_pointcloud, branching_pos_pointcloud, branching_neg_pointcloud))
-    return pipe_section_pointcloud
+    pipe_section_pointcloud = np.vstack([parent_pointcloud, branching_pos_pointcloud, branching_neg_pointcloud])
+    pipe_section_normals = np.vstack([parent_normals, branching_pos_normals, branching_neg_normals])
+    return pipe_section_pointcloud, pipe_section_normals
 
-def construct_carina_pointcloud(parameters, n_carina_range = 80, n_carina_rad = 8):
+def construct_carina_pointcloud(parameters, n_carina_range, n_carina_rad):
     """
     A method to iterate through the phi_s and psi ranges to construct a high
     density pointcloud of the carina. 
@@ -134,14 +147,16 @@ def construct_carina_pointcloud(parameters, n_carina_range = 80, n_carina_rad = 
         parameters (list): parameters of bifurcation unit, see docstring
 
         n_carina_range (int, optional ): number of points along the arc of the carina
-            connecting the daughter outlet pathways, default 80.
+            connecting the daughter outlet pathways, default 60.
 
         n_carina_rad (int, optional): number of points along the radius of the carina 
             connecting the daughter outlet pathways, default 8.
     """
     #Initialize carina pointcloud
-    carina_pos_pointcloud = np.zeros((n_carina_range*n_carina_rad, 3))
+    carina_pos_pointcloud = np.zeros((n_carina_range *n_carina_rad, 3))
     carina_neg_pointcloud = np.zeros((n_carina_range*n_carina_rad, 3))
+    carina_pos_normals = np.zeros((n_carina_range *n_carina_rad, 3))
+    carina_neg_normals = np.zeros((n_carina_range*n_carina_rad, 3))
     #populate carina pointcloud
     angle_phi_gamma = sge.get_angle_phi_gamma(parameters)
     phi_s_carina_linspace = np.linspace(0, angle_phi_gamma, n_carina_range)
@@ -152,21 +167,26 @@ def construct_carina_pointcloud(parameters, n_carina_range = 80, n_carina_rad = 
         for n in range(n_carina_rad):
             carina_pos_pointcloud[carina_index], carina_neg_pointcloud[carina_index] = \
                 sge.get_carina_position(phi_s_carina_linspace[m], psi_linspace[n], parameters)
+            carina_pos_normals[carina_index], carina_neg_normals[carina_index] = \
+                sge.get_carina_normal(carina_pos_pointcloud[carina_index], phi_s_carina_linspace[m], parameters)
             carina_index += 1
     #combine pointclouds into single numpy array
-    carina_pointcloud = np.concatenate((carina_pos_pointcloud, carina_neg_pointcloud))
-    return carina_pointcloud
-    
+    carina_pointcloud = np.vstack([carina_pos_pointcloud, carina_neg_pointcloud])
+    carina_normals = np.vstack([carina_pos_normals, carina_neg_normals])
+    return carina_pointcloud, carina_normals
+
 ################################################################################################
 #                                        TESTING                                               #
 ################################################################################################
-test_branching_angle = 35*np.pi/180
-test_carina_angle = 3.6*np.pi/180
-test_parameters = gen_15 = [420, 0.05 * 2010, 335, 2010, 1675, test_branching_angle, test_carina_angle, 1]
-pipe_section_pcd = construct_pipe_section_pointcloud(test_parameters)
-#carina_pcd = construct_carina_pointcloud(test_parameters)
+# test_branching_angle = 35*np.pi/180
+# test_carina_angle = 3.6*np.pi/180
+# test_parameters = [420, 0.05 * 2010, 335, 2010, 1675, test_branching_angle, test_carina_angle, 1]
+# pipe_section_pcd, pipe_normals = construct_pipe_section_pointcloud(test_parameters)
+# carina_pcd, car_normals = construct_carina_pointcloud(test_parameters)
 
-import open3d as o3d
-pointcloud = o3d.geometry.PointCloud()
-pointcloud.points = o3d.utility.Vector3dVector(pipe_section_pcd)#np.concatenate(pipe_section_pcd, carina_pcd))
-o3d.visualization.draw_geometries([pointcloud], window_name = "Visualization")
+# print("FINISHED CREATING POINTCLOUD GEOMETRY")
+# import open3d as o3d
+# pointcloud = o3d.geometry.PointCloud()
+# pointcloud.points = o3d.utility.Vector3dVector(np.vstack([pipe_section_pcd, carina_pcd]))
+# pointcloud.normals = o3d.utility.Vector3dVector(np.vstack([pipe_normals, car_normals]))
+# o3d.visualization.draw_geometries([pointcloud], window_name = "Visualization")
