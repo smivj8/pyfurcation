@@ -68,7 +68,6 @@ class bifurcation_mesh:
             n_car_rad (int, optional): number of points along the radius of the carina 
                 connecting the daughter outlet pathways.
         """
-        print("\nBEGINNING CREATING BIFURCATION UNIT POINTCLOUD\n")
         pipe_section_pcd, pipe_normals = \
             pcf.construct_pipe_section_pointcloud(self.parameters, n_streamline, n_circ)
         carina_pcd, car_normals = \
@@ -76,7 +75,6 @@ class bifurcation_mesh:
 
         self.bifurcation_unit_xyz = np.vstack([pipe_section_pcd, carina_pcd])
         self.bifurcation_unit_normals = np.vstack([pipe_normals, car_normals])
-        print("\nFINISHED CREATING BIFURCATION UNIT POINTCLOUD\n")   
 
     def generate_o3d_pointcloud(self):
         """
@@ -135,7 +133,6 @@ class bifurcation_mesh:
         #return mesh to original orientation
         cropped_mesh.rotate((ufb.rotation_matrix_about_y(self.branching_angle)), center = np.zeros(3))
         self.cropped_mesh = cropped_mesh
-        return
     
     def truncate_continuation_outlets(self):
         """
@@ -173,8 +170,6 @@ class bifurcation_mesh:
             #Truncate neither outlet, both will be capped off.
             pass
         self.truncated_mesh = truncated_mesh
-        return self.truncated_mesh
-
         
     def cap_terminal_outlets(self):
         """
@@ -239,7 +234,6 @@ class bifurcation_mesh:
             capped_mesh.compute_triangle_normals()
             capped_mesh.orient_triangles()
             self.capped_mesh = capped_mesh
-        return
     
     def cap_initial_inlet(self):
         """
@@ -263,18 +257,18 @@ class bifurcation_mesh:
         initial_capped_mesh.orient_triangles()
         self.initial_capped_mesh = initial_capped_mesh
     
-    # def perform_mesh_analysis(self):
-    #     """
-    #     Method that returns analysis of the mesh using open3d defined functions.
-    #     Returns:
+    def perform_mesh_analysis(self):
+        """
+        Method that returns analysis of the mesh using open3d defined functions.
+        Returns:
 
-    #     """
-    #     analysis_mesh = self.initial_capped_mesh
-    #     if self.n_cont_outlets != 0:
-    #         analysis = [None, None]
-    #     else:
-    #         volume = analysis_mesh.get_volume()
-    #         surface_area = analysis_mesh.get_surface_area()
-    #         analysis = [volume, surface_area]
-    #     return analysis
+        """
+        analysis_mesh = self.initial_capped_mesh
+        if self.n_cont_outlets != 0:
+            analysis = [None, None]
+        else:
+            volume = analysis_mesh.get_volume()
+            surface_area = analysis_mesh.get_surface_area()
+            analysis = [volume, surface_area]
+        return analysis
     
