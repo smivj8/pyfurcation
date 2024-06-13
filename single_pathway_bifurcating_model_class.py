@@ -59,6 +59,6 @@ class single_pathway_bifurcating_model:
             tree_mesh += (bifurcation_unit_gen_k.bifurcation_unit_mesh + junction_mesh)
             cont_outlet_vertices = bifurcation_unit_gen_k.positive_outlet_free_vertices
             print(f"DONE.\nGeneration Time: {time() - time_gen_initial}\nTotal Time: {time() - initial_time}\n\n\n")
-        print(f"Done Generating Mesh... Total Time {time() - initial_time}")
+        print(f"Finished Generating Mesh...\nTotal Time {time() - initial_time}\n\n\n")
         self.tree_mesh = tree_mesh
         self.cont_outlet_vertices = cont_outlet_vertices
