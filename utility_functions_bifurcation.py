@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-from stylianou_geometry_equations_legacy import r_positive
+import stylianou_geometry_equations as sge
 
 def sliceplane(mesh, axis, value, direction):
     # axis can be 0,1,2 (which corresponds to x,y,z)
@@ -244,44 +244,43 @@ def creat_junction_mesh_v2(proximal_edges, proximal_vertices, distal_edges, dist
     return junction_mesh
 
 def calculate_outlet_positions(parameters):
-    R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
-    L_d = parameters[3]; R_o = parameters[4]; R_i = parameters[5]
-    iota_b = parameters[6]; delta_alpha = parameters[7]
-    iota_gamma = parameters[8]
-    eta = np.tan(iota_gamma - iota_b)
-    phi_s_max = iota_b + np.arctan(eta + (L_d/R_o))
-    def phi_c_pos_min_lambda(phi_s, parameters, scalar):
-        return -1*np.pi/2
-    def phi_c_pos_max_lambda(phi_s, parameters, scalar):
-        return 3*np.pi/2
-    r0, _ =  r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
-    rpi, _ = r_positive(phi_s_max, np.pi, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
-    r_pos = ((r0 + rpi)/2)   
+    """
+    Calculate the position vectors of the center of the outlets of a
+    bifurcation unit, based on the unit parameters. Determines the maximum
+    value of parametric variable eta and phi_s, and returns position using
+    equations from [2].
+
+    """
+    #See sources above for full description of variables
+    phi_s_max = sge.get_phi_s_max(parameters)
+    #Dummy functions necessary to plug into position vector functions. Legacy
+    #artifact of me having terrible coding practices...
+    r0 = sge.get_r_positive(phi_s_max, 0, parameters)
+    rpi = sge.get_r_positive(phi_s_max, np.pi, parameters)
+    r_pos = (r0 + rpi)/2
     r_neg = np.zeros(3)
     r_neg[0] = r_pos[0]
     r_neg[1] = r_pos[1]
     r_neg[2] = -1*r_pos[2]
+    r_pos = r_pos
+    r_neg = r_neg
     return r_pos, r_neg
 
 def calculate_outlet_normals(parameters):
-    R_p = parameters[0]; L_p = parameters[1]; R_d = parameters[2]
-    L_d = parameters[3]; R_o = parameters[4]; R_i = parameters[5]
-    iota_b = parameters[6]; delta_alpha = parameters[7]
-    iota_gamma = parameters[8]
-    eta = np.tan(iota_gamma - iota_b)
-    phi_s_max = iota_b + np.arctan(eta + (L_d/R_o))
-    def phi_c_pos_min_lambda(phi_s, parameters, scalar):
-        return -1*np.pi/2
-    def phi_c_pos_max_lambda(phi_s, parameters, scalar):
-        return 3*np.pi/2
-    r_C, _ = r_positive(iota_b, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
-    r_F, _ = r_positive(phi_s_max, 0, phi_c_pos_min_lambda, phi_c_pos_max_lambda, parameters, 1.1)
-    n_pos = ((r_F - r_C)/np.linalg.norm((r_F - r_C)))
-        
+    """
+    Calculate the vectors (unit) normal to outlet planes, based on the unit parameters. 
+    Determines the maximum value of parametric variable eta and phi_s, and 
+    returns unit normal vectors using equations from [2].
+
+    """
+    phi_s_max = sge.get_phi_s_max(parameters)
+    r_c = sge.get_r_positive(branching_angle, 0, parameters)
+    r_f = sge.get_r_positive(phi_s_max, 0, parameters)
+    n_pos = ((r_f - r_c)/np.linalg.norm((r_f - r_c)))
     n_neg = np.zeros(3)
-        
     n_neg[0] = n_pos[0]
     n_neg[1] = n_pos[1]
     n_neg[2] = -1*n_pos[2]
-    
+    n_pos = n_pos
+    n_neg = n_neg
     return n_pos, n_neg
