@@ -52,7 +52,7 @@ class bifurcation_mesh:
         self.cap_initial_inlet()
 
 
-    def generate_parametric_xyz(self, n_streamline = 100, n_circ = 80,
+    def generate_parametric_xyz(self, n_streamline = 120, n_circ = 120,
                                 n_carina_range = 60, n_carina_rad = 8):
         """
         Generates high density numpy xyz pointcloud array using parametric equations 
@@ -266,9 +266,11 @@ class bifurcation_mesh:
         analysis_mesh = self.initial_capped_mesh
         if self.n_cont_outlets != 0:
             analysis = [None, None]
-        else:
+        elif analysis_mesh.is_watertight():
             volume = analysis_mesh.get_volume()
             surface_area = analysis_mesh.get_surface_area()
             analysis = [volume, surface_area]
+        else:
+            analysis = [None, None]
         return analysis
     

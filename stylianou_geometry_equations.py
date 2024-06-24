@@ -602,7 +602,7 @@ def get_r_positive(phi_s, phi_c, parameters):
     phi_c_pos_min = get_phi_c_pos_min(phi_s, parameters)
     phi_c_pos_max = get_phi_c_pos_max(phi_c_pos_min)
     #Check here that phi_c is in range, instead of in every condition
-    #assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
+    assert (phi_c >= phi_c_pos_min and phi_c <= phi_c_pos_max)
     #construct the piecewise equation (A.15), ensurung phi_s is in range
     if phi_s >= 0 and phi_s <= branching_angle:
         r_positive = get_merging_pipe_positive_z(phi_s, phi_c, parameters)

@@ -20,3 +20,8 @@ __pycache__/single_pathway_bifurcating_model_class.cpython-311.pyc
 Four_Generation_Plane_Values.txt
 __pycache__/stylianou_geometry_equations_legacy.cpython-311.pyc
 __pycache__/pointcloud_construction_functions.cpython-311.pyc
+__pycache__/bifurcation_unit_centerline_class.cpython-311.pyc
+bifurcation_output.txt
+bifurcation_unit_volume_and_area.txt
+single_pathway_tree_outlet_normals.txt
+single_pathway_tree_outlet_positions.txt

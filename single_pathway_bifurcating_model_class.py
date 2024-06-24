@@ -18,10 +18,14 @@ class single_pathway_bifurcating_model:
 
     def generate_single_pathway_tree_skeleton(self):
         tree_outlet_positions = np.zeros((self.n_generations, 3))
+        negative_outlet_positions = np.zeros((self.n_generations, 3))
         tree_outlet_normals = np.zeros((self.n_generations, 3))
+        negative_outlet_normals = np.zeros((self.n_generations, 3))
         vectors = bifurcation_vectors(self.tree_parameters[0])
         tree_outlet_positions[0] = vectors.r_pos
+        negative_outlet_positions[0] = vectors.r_neg
         tree_outlet_normals[0] = vectors.n_pos
+        negative_outlet_normals[0] = vectors.n_neg
         for j in range(1, self.n_generations):
             vectors = bifurcation_vectors(self.tree_parameters[j])
             R1 = unit_vector_match_rotation(np.array([1,0,0]), tree_outlet_normals[j-1])
@@ -31,9 +35,14 @@ class single_pathway_bifurcating_model:
             vectors.translate_vector(tree_outlet_positions[j-1])
             #update new position and normal
             tree_outlet_positions[j] = vectors.r_pos
+            negative_outlet_positions[j] = vectors.r_neg
             tree_outlet_normals[j] = vectors.n_pos
+            negative_outlet_normals[j] = vectors.n_neg
         self.tree_outlet_positions = tree_outlet_positions
         self.tree_outlet_normals = tree_outlet_normals
+        self.negative_outlet_positions = negative_outlet_positions
+        self.negative_outlet_normals = negative_outlet_normals
+        
         
 
     def generate_single_pathway_bifurcating_tree(self):
