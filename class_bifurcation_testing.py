@@ -9,7 +9,7 @@ test_carina_angle = 3.6*np.pi/180
 
 #Create 4 generation tree from 15 to 18
 
-gen_15 = [420, 0, 335, 2010, 1675, test_branching_angle, test_carina_angle, 0]
+gen_15 = [420, 2010, 335, 2010, 1675, test_branching_angle, test_carina_angle, 0]
 gen_16 = [335, 0, 270, 1620, 1350, test_branching_angle, test_carina_angle, 1]
 gen_17 = [270, 0, 215, 1290, 1075, test_branching_angle, test_carina_angle, 1]
 gen_18 = [215, 0, 175, 1050,  875, test_branching_angle, test_carina_angle, 1]
