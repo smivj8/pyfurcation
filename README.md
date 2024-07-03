@@ -36,7 +36,7 @@ See Figures Below. Note: all other parameters shown in the images are calculated
 If you are feeling adventurous, there are bounds on these values for which a valid geometry can be generated, based on the equations found in Appendix A of [[2]](#2). It's a pretty interesting problem,
 but would require *a lot* of algebra to fully determine. There might be more information in [[1]](#1) too, that I have yet to fully dive into.
 
-See code documentation in the [bifurcation unit generation directory](/bifurcating_unit_modules/) for code workflow.
+See code documentation in the [bifurcation unit generation directory](/bifurcation_unit_modules/) for code workflow.
 
 To generate a complete mesh, an additional parameter, n<sub>Cont. Outlets</sub>, is necessary. This parameter defines the number of outlets (0, 1, or 2) that will be left "open," in that they are not closed off by triangles. This parameter is important for connecting successive bifurcation units in a complete tree, and has no utility in the overall geometry generation of a single unit (and in which case is should be set to 0).
 
