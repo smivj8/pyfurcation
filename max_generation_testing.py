@@ -4,7 +4,7 @@ Testing how many generations I can create from a .csv file
 import csv
 import numpy as np
 import open3d as o3d
-from single_pathway_bifurcating_model_class import single_pathway_bifurcating_model
+from bifurcation_tree_modules.single_pathway_bifurcating_model_class import single_pathway_bifurcating_model
 
 
 
