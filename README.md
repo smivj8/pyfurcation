@@ -10,7 +10,7 @@ The PYFURCATION Library utilizes the following python packages:
 
 See Open3d [GitHub](https://github.com/isl-org/Open3D) for Python installation guide and [Documentation](https://www.open3d.org/docs/release/) for more information on the library.
 
-## How To: Creating a Bifurcating Respiratory Tree Surface Mesh
+## About the Model: Defining the Geometry
 
 ### Bifurcation Units
 <p align="center">
@@ -32,5 +32,17 @@ See Figures Below. Note: all other parameters shown in the images are calculated
 ![](/supporting_documents/figure1.jpg)  |  ![](/supporting_documents/figure2.jpg)
 :-------------------------:|:-------------------------:
 **Figure 1**               |  **Figure 2**
+
+If you are feeling adventurous, there are bounds on these values for which a valid geometry can be generated, based on the equations found in Appendix A of [[2]](#2). It's a pretty interesting problem,
+but would require *a lot* of algebra to fully determine. There might be more information in [[1]](#1) too, that I have yet to fully dive into.
+
+See code documentation in the [bifurcation unit generation directory](/bifurcating_unit_modules) for code workflow.
+
+In prac
+
+### Respiratory Tree
+
+
+## How To: Creating a Bifurcating Respiratory Tree Surface Mesh
 
 ## References
