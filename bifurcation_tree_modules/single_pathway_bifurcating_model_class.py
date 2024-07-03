@@ -1,8 +1,8 @@
 import numpy as np
 from time import time
-from bifurcation_unit_class import bifurcation_unit
-from bifurcation_vectors_class import bifurcation_vectors
-from utility_functions_bifurcation import *
+from bifurcation_unit_modules.bifurcation_unit_class import bifurcation_unit
+from bifurcation_unit_modules.bifurcation_vectors_class import bifurcation_vectors
+from bifurcation_unit_modules.utility_functions_bifurcation import *
 
 
 class single_pathway_bifurcating_model:

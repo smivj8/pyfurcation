@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-import stylianou_geometry_equations as sge
+import bifurcation_unit_modules.stylianou_geometry_equations as sge
 
 
 class bifurcation_vectors:

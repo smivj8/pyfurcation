@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-import stylianou_geometry_equations as sge
+import bifurcation_unit_modules.stylianou_geometry_equations as sge
 
 def sliceplane(mesh, axis, value, direction):
     # axis can be 0,1,2 (which corresponds to x,y,z)

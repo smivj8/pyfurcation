@@ -1,10 +1,10 @@
 import numpy as np
 import open3d as o3d
-from bifurcation_vectors_class import bifurcation_vectors
-from bifurcation_free_vertices_class import bifurcation_free_vertices
-import utility_functions_bifurcation as ufb
-import stylianou_geometry_equations as sge
-import pointcloud_construction_functions as pcf
+from bifurcation_unit_modules.bifurcation_vectors_class import bifurcation_vectors
+from bifurcation_unit_modules.bifurcation_free_vertices_class import bifurcation_free_vertices
+import bifurcation_unit_modules.utility_functions_bifurcation as ufb
+import bifurcation_unit_modules.stylianou_geometry_equations as sge
+import bifurcation_unit_modules.pointcloud_construction_functions as pcf
 
 
 class bifurcation_mesh:

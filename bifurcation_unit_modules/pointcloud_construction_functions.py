@@ -33,7 +33,7 @@ successfuly tested to produce appropriate meshes. These can be changed when call
 
 """
 import numpy as np
-import stylianou_geometry_equations as sge
+import bifurcation_unit_modules.stylianou_geometry_equations as sge
 
 def get_pipe_section_pointcloud_sizes(parameters, n_streamline, n_circ):
     """

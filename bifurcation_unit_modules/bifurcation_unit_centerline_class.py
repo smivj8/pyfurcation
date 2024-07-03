@@ -1,6 +1,6 @@
 import numpy as np
 import open3d as o3d
-from bifurcation_vectors_class import bifurcation_vectors
+from bifurcation_unit_modules.bifurcation_vectors_class import bifurcation_vectors
 
 class bifurcation_unit_centerline:
 
