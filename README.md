@@ -14,7 +14,7 @@ See Open3d [GitHub](https://github.com/isl-org/Open3D) for Python installation g
 
 ### Bifurcation Units
 <p align="center">
-  <img src="/supporting_documents/pointcloud_unit.png" width = 500>
+  <img src="/supporting_documents/pointcloud_unit2.png" width = 500>
 </p>
 
 The PYFURCATION Library generates a series of symmetric Bifurcation Units (Single Inlet, Double Outlet unit trees) using the methodology set out in [[1]](#1) and Appendix A of [[2]](#2). 
@@ -38,7 +38,23 @@ but would require *a lot* of algebra to fully determine. There might be more inf
 
 See code documentation in the [bifurcation unit generation directory](/bifurcating_unit_modules) for code workflow.
 
-In prac
+To generate a complete mesh, an additional parameter, n<sub>Cont. Outlets</sub>, is necessary. This parameter defines the number of outlets (0, 1, or 2) that will be left "open," in that they are not closed off by triangles. This parameter is important for connecting successive bifurcation units in a complete tree, and has no utility in the overall geometry generation of a single unit (and in which case is should be set to 0).
+
+Additional parameters, such as pointcloud density or Poisson Mesh characteristic parameters, can be manipulated within the code (they are left as optional arguments in their corresponding functions) if necessary, although it is not recommended. I have found that the provided values generate adequate meshes in a short time. Any push/pull requests that alter these values, without good justification, will be rejected. Probably. I'm not sure how much I will be keeping track of this in the future. 
+
+#### Example Parameters
+
+At the start of this section, a sample bifurcation unit, with the pointcloud, was shown. The parameters used were: 
+* R<sub>p</sub> = 420
+* L<sub>p</sub> = 2010
+* R<sub>d</sub> = 335
+* L<sub>d</sub> = 2010
+* R<sub>o</sub> = 1675
+* &Phi;<sub>&Beta;</sub> = 35&deg;
+* &Delta;&gamma; = 3.6&deg;
+* n<sub>Cont. Outlets</sub> = 0
+
+The radius and length parameters have units &mu;m, although the unit generation should work so long as they are within the necessary relative bounds (of which I don't know). 
 
 ### Respiratory Tree
 
