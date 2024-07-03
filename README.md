@@ -11,6 +11,12 @@ The PYFURCATION Library utilizes the following python packages:
 See Open3d [GitHub](https://github.com/isl-org/Open3D) for Python installation guide and [Documentation](https://www.open3d.org/docs/release/) for more information on the library.
 
 ## How To: Creating a Bifurcating Respiratory Tree Surface Mesh
+
+### Bifurcation Units
+<p align="center">
+  <img src="/supporting_documents/pointcloud_unit.png" width = 500>
+</p>
+
 The PYFURCATION Library generates a series of symmetric Bifurcation Units (Single Inlet, Double Outlet unit trees) using the methodology set out in [[1]](#1) and Appendix A of [[2]](#2). 
 Each Bifurcation Unit is defined by the following parameters:
 * R<sub>p</sub> - Parent Radius; the radius of the parent section (inlet) of the bifurcation unit
@@ -21,7 +27,10 @@ Each Bifurcation Unit is defined by the following parameters:
 * &Phi;<sub>&Beta;</sub> - Branching Angle; the angle between the parent and daughter pipe sections
 * &Delta;&gamma; - Carina Angle; the angle of the smooth carina connecting the daughter pipe sections
 
+See Figures Below. Note: all other parameters shown in the images are calculated from the above.
 
-
+![](/supporting_documents/figure1.jpg)  |  ![](/supporting_documents/figure2.jpg)
+:-------------------------:|:-------------------------:
+**Figure 1**               |  **Figure 2**
 
 ## References
