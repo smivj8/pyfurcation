@@ -58,6 +58,8 @@ The radius and length parameters have units &mu;m, although the unit generation 
 
 ### Respiratory Tree
 
+To construct a complete respiratory tree, a sequence of bifurcation units are generated, transformed, and connected in a user-defined pattern.
+
 
 ## How To: Creating a Bifurcating Respiratory Tree Surface Mesh
 
